@@ -1,0 +1,109 @@
+* nix-elisp-helpers
+This repository provides a collection of Nix utilities for developing Emacs Lisp packages.
+It uses [[https://github.com/talyz/fromElisp][talyz/fromElisp]] parser to parse S expressions.
+
+It covers the following use cases:
+
+- Extract dependencies from a =Cask= file
+- Parse a MELPA-style recipe and expand its =:files= spec
+
+# Add CI badges here
+
+#+BEGIN_HTML
+#+END_HTML
+** Table of contents
+:PROPERTIES:
+:TOC: siblings
+:END:
+-  [[#usage][Usage]]
+  -  [[#parsecask][parseCask]]
+  -  [[#parserecipe][parseRecipe]]
+  -  [[#expandpackagefiles][expandPackageFiles]]
+-  [[#credits][Credits]]
+
+** Usage
+You can import the repository directly:
+
+#+begin_src nix
+  with (import (builtins.fetchGit {
+    url = "https://github.com/akirak/nix-elisp-helpers.git";
+    ref = "master";
+    ...
+  }));
+#+end_src
+
+or you can use =niv=:
+
+#+begin_src sh
+niv add akirak/nix-elisp-helpers
+#+end_src
+
+#+begin_src nix
+  with (import (import ./nix/sources.nix).nix-elisp-helpers { inherit pkgs; });
+#+end_src
+
+=default.nix= in this repository provides several functions for elisp development.
+*** parseCask
+=parseCask= function takes a =Cask= file content as an argument and returns the package data in an attribute set:
+
+#+begin_src nix
+let
+  packageInfo = parseCask (builtins.readFile ./Cask)
+in
+  ...
+#+end_src
+
+=development.dependencies= holds all =depends-on= items in =development=, e.g.:
+
+#+begin_src nix
+  assert (builtins.map builtins.head packageInfo.development.dependencies ==
+    ["f" "s" "dash" "ansi" "ecukes" "servant" "ert-runner" "el-mock" "noflet" "ert-async" "shell-split-string"]);
+  ...
+#+end_src
+*** parseRecipe
+=parseRecipe= functions takes a MELPA-style recipe string as an argument and returns its content as an attribute set:
+
+#+begin_src nix
+  # The file contains '(smex :repo "nonsequitur/smex" :fetcher github)'
+  let
+    package = parseRecipe (builtins.readFile ./smex);
+  in
+  ...
+#+end_src
+
+It's handy because it returns an attribute set:
+
+#+begin_src nix
+  assert (package.pname == "smex");
+  assert (package.repo == "nonsequitur/smex");
+  assert (package.fetcher == "github");
+  assert (package.files == null);
+  ...
+#+end_src
+*** expandPackageFiles
+=expandPackageFiles= function expands =:files= spec in a recipe under a given directory:
+
+#+begin_src nix
+  expandPackageFiles ./. ["*.el" [":excludes" ".dir-locals.el" "*-test.el"]]
+#+end_src
+
+It returns a list of matching files relative from the directory:
+
+#+begin_src nix
+  ["hello.el" "hello-utils.el"]
+#+end_src
+
+The first argument must be a path to a directory, and the second argument can be either a list or =null=. When =null= is given as a spec, the default spec of MELPA is used.
+
+It can be combined with =parseRecipe=:
+
+#+begin_src nix
+  let
+    package = parseRecipe ./awesome-package;
+    files = expandPackageFiles ./. package.files;
+  in
+  ...
+#+end_src
+** Credits
+This project uses [[https://github.com/talyz/fromElisp][talyz/fromElisp]] for parsing Emacs Lisp expressions in Nix.
+The repository organisation is largely inspired by Damien Cassou's [[https://github.com/DamienCassou/nix-hello-world][nix-hello-world]].
