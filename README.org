@@ -1,8 +1,8 @@
 * nix-elisp-helpers
-This repository provides a collection of Nix utilities for developing Emacs Lisp packages.
+This repository provides some Nix utilities for developing Emacs Lisp packages.
 It uses [[https://github.com/talyz/fromElisp][talyz/fromElisp]] parser to parse S expressions.
 
-It covers the following use cases:
+It currently covers the following use cases:
 
 - Extract dependencies from a =Cask= file
 - Parse a MELPA-style recipe and expand its =:files= spec
