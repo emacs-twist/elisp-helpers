@@ -14,6 +14,11 @@ let
         [ "python-mode" "snippets/python-mode/*" ]
       ]
     ];
+  nestedExpansion3 = expandPackageFiles ./pony-mode
+    [
+      "src/*.el"
+      "snippets"
+    ];
 in
   # recipe 1
   assert (recipe1.pname == "smex");
@@ -34,4 +39,5 @@ in
   assert (expandResult == [ "hello.el" "hello2.el" "doc/hello.info" ]);
   assert (nestedExpansion1 == [ "flymake-perlcritic.el" "bin/flymake_perlcritic" ]);
   assert (nestedExpansion2 == [ "snippets/html-mode/1" "snippets/html-mode/2" "snippets/python-mode/def" "snippets/python-mode/while" ]);
+  assert (nestedExpansion3 == [ "src/pony-mode.el" "src/pony-tpl.el" "snippets" ]);
   null

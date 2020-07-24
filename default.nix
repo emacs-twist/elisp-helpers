@@ -95,8 +95,7 @@ rec {
       expandPackageFiles_ = prefix: dir: initialSpec:
         let
           files =
-            pkgs.lib.mapAttrsToList (n: _v: n)
-              (pkgs.lib.filterAttrs (_n: v: v == "regular") (readDir dir));
+            pkgs.lib.mapAttrsToList (n: _v: n) (readDir dir);
           expandWildcards = pattern:
             let
               regex = replaceStrings [ "?" "*" "." ] [ "." ".*" "\\." ] pattern;
