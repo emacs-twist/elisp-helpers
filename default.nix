@@ -3,19 +3,24 @@ with builtins;
 let
   sources = import ./nix/sources.nix;
   fromElisp = import sources.fromElisp { inherit pkgs; };
+  # Look up a key in an alist-like structure.
   lookup = key: xs:
     let
       match = filter (x: head x == key) xs;
     in
       if length match > 0 then tail (head match) else null;
+  # Filter sublists whose head equals to key and return their tails.
   select = key: xs:
     if xs == null then [] else map tail (filter (x: head x == key) xs);
+  # If a non-empty list is given, return its head. Otherwise return null.
   safeHead = xs: if isList xs && length xs > 0 then head xs else null;
+  # Transform a flat list into a nested list
   plistToAlist = xs:
     if length xs > 0 then
       [ (pkgs.lib.take 2 xs) ] ++ (plistToAlist (pkgs.lib.drop 2 xs))
     else
       [];
+  # pre-commit hook for development
   nix-pre-commit-hooks = import sources."pre-commit-hooks.nix";
 in
 rec {
@@ -38,6 +43,7 @@ rec {
         sources = map head (select "source" input);
       };
 
+  # Parse a MELPA recipe.
   parseRecipe = str:
     let
       input = head (fromElisp.fromElisp str);
@@ -54,6 +60,8 @@ rec {
         files = safeHead (lookup ":files" props);
       };
 
+  # Default :files spec.
+  #
   # Based on package-build-default-files-spec in package-build.el.
   defaultFilesSpec = [
     "*.el"
@@ -76,6 +84,11 @@ rec {
     ]
   ];
 
+  # Expand :files spec in a MELPA recipe.
+  # dir is a path to a directory (usually the root of a project),
+  # and initialSpec is a list of specs.
+  #
+  # If null is given as initialSpec, defaultFilesSpec is used.
   expandPackageFiles = dir: initialSpec:
     let
       filesInDir = dir:
@@ -109,6 +122,8 @@ rec {
     in
       builtins.foldl' (go dir) [] concreteList;
 
+  # Format and lint code via pre-commit Git hook.
+  # See shell.nix
   pre-commit-check = nix-pre-commit-hooks.run {
     src = ./.;
     hooks = {
