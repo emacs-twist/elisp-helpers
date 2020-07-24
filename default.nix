@@ -4,19 +4,19 @@ let
   sources = import ./nix/sources.nix;
   fromElisp = import sources.fromElisp { inherit pkgs; };
   lookup = key: xs:
-    let match = filter (x: head x == key) xs;
-    in if length match > 0
-       then tail (head match)
-       else null;
+    let
+      match = filter (x: head x == key) xs;
+    in
+      if length match > 0 then tail (head match) else null;
   select = key: xs:
-    if xs == null
-    then []
-    else map tail (filter (x: head x == key) xs);
+    if xs == null then [] else map tail (filter (x: head x == key) xs);
   safeHead = xs: if isList xs && length xs > 0 then head xs else null;
   plistToAlist = xs:
-    if length xs > 0
-    then [(pkgs.lib.take 2 xs)] ++ (plistToAlist (pkgs.lib.drop 2 xs))
-    else [];
+    if length xs > 0 then
+      [ (pkgs.lib.take 2 xs) ] ++ (plistToAlist (pkgs.lib.drop 2 xs))
+    else
+      [];
+  nix-pre-commit-hooks = import sources."pre-commit-hooks.nix";
 in
 rec {
   # Parse a Cask file.
@@ -34,9 +34,7 @@ rec {
         # Package contents
         files = lookup "files" input;
         dependencies = select "depends-on" input;
-        development = {
-          dependencies = select "depends-on" development;
-        };
+        development = { dependencies = select "depends-on" development; };
         sources = map head (select "source" input);
       };
 
@@ -57,39 +55,65 @@ rec {
       };
 
   # Based on package-build-default-files-spec in package-build.el.
-  defaultFilesSpec =
-    ["*.el" "*.el.in" "dir"
-    "*.info" "*.texi" "*.texinfo"
-    "doc/dir" "doc/*.info" "doc/*.texi" "doc/*.texinfo"
-    [":exclude" ".dir-locals.el" "test.el" "tests.el" "*-test.el" "*-tests.el"]];
+  defaultFilesSpec = [
+    "*.el"
+    "*.el.in"
+    "dir"
+    "*.info"
+    "*.texi"
+    "*.texinfo"
+    "doc/dir"
+    "doc/*.info"
+    "doc/*.texi"
+    "doc/*.texinfo"
+    [
+      ":exclude"
+      ".dir-locals.el"
+      "test.el"
+      "tests.el"
+      "*-test.el"
+      "*-tests.el"
+    ]
+  ];
 
   expandPackageFiles = dir: initialSpec:
     let
       filesInDir = dir:
         pkgs.lib.mapAttrsToList (n: _v: n)
           (pkgs.lib.filterAttrs (_n: v: v == "regular") (readDir dir));
-      globToRegexp = replaceStrings ["?" "*" "."] ["." ".*" "\\."];
-      regexpQuote = replaceStrings ["." "\\"] ["\\." "\\\\"];
+      globToRegexp = replaceStrings [ "?" "*" "." ] [ "." ".*" "\\." ];
       prependSubdir = subdir: file: subdir + "/" + file;
       expandWildcards = dir: pattern:
         let
           files = filesInDir dir;
           regex = globToRegexp pattern;
-        in filter (file: match regex file != null) files;
+        in
+          filter (file: match regex file != null) files;
       go = subdir: filelist: entry:
-        if isString entry
-        then filelist ++ expandWildcards subdir entry
-        else
-          if head entry == ":exclude"
-          then pkgs.lib.subtractLists (expandPackageFiles subdir (tail entry))
+        if isString entry then
+          filelist ++ expandWildcards subdir entry
+        else if head entry == ":exclude" then
+          pkgs.lib.subtractLists (expandPackageFiles subdir (tail entry))
             filelist
-          else filelist ++ (map (prependSubdir (head entry)) (expandPackageFiles (subdir + "/${head entry}") (tail entry)));
-      concreteList =
-        if initialSpec == null
-        then defaultFilesSpec
         else
-          if head initialSpec == ":defaults"
-          then defaultFilesSpec ++ tail initialSpec
-          else initialSpec;
-    in builtins.foldl' (go dir) [] concreteList;
+          filelist ++ (
+            map (prependSubdir (head entry))
+              (expandPackageFiles (subdir + "/${head entry}") (tail entry))
+          );
+      concreteList = if initialSpec == null then
+        defaultFilesSpec
+      else if head initialSpec == ":defaults" then
+        defaultFilesSpec ++ tail initialSpec
+      else
+        initialSpec;
+    in
+      builtins.foldl' (go dir) [] concreteList;
+
+  pre-commit-check = nix-pre-commit-hooks.run {
+    src = ./.;
+    hooks = {
+      nixpkgs-fmt.enable = true;
+      nix-linter.enable = true;
+    };
+  };
 }
