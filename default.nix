@@ -20,6 +20,7 @@ let
       [ (pkgs.lib.take 2 xs) ] ++ (plistToAlist (pkgs.lib.drop 2 xs))
     else
       [];
+
   # pre-commit hook for development
   nix-pre-commit-hooks = import sources."pre-commit-hooks.nix";
 in
@@ -89,38 +90,43 @@ rec {
   # and initialSpec is a list of specs.
   #
   # If null is given as initialSpec, defaultFilesSpec is used.
-  expandPackageFiles = dir: initialSpec:
+  expandPackageFiles =
     let
-      filesInDir = dir:
-        pkgs.lib.mapAttrsToList (n: _v: n)
-          (pkgs.lib.filterAttrs (_n: v: v == "regular") (readDir dir));
-      globToRegexp = replaceStrings [ "?" "*" "." ] [ "." ".*" "\\." ];
-      prependSubdir = subdir: file: subdir + "/" + file;
-      expandWildcards = dir: pattern:
+      expandPackageFiles_ = prefix: dir: initialSpec:
         let
-          files = filesInDir dir;
-          regex = globToRegexp pattern;
+          files =
+            pkgs.lib.mapAttrsToList (n: _v: n)
+              (pkgs.lib.filterAttrs (_n: v: v == "regular") (readDir dir));
+          expandWildcards = pattern:
+            let
+              regex = replaceStrings [ "?" "*" "." ] [ "." ".*" "\\." ] pattern;
+              filesWithDirs = map (file: prefix + file) files;
+            in
+              filter (file: match regex file != null) filesWithDirs;
+          go = filelist: entry:
+            if isString entry then
+              filelist ++ expandWildcards entry
+            else
+              let
+                key = head entry;
+              in
+                if key == ":exclude" then
+                  pkgs.lib.subtractLists (expandPackageFiles_ prefix dir (tail entry)) filelist
+                else
+                  filelist ++ (
+                    expandPackageFiles_ (prefix + "${key}/") (dir + "/${key}") (tail entry)
+                  );
+          concreteList =
+            if initialSpec == null then
+              defaultFilesSpec
+            else if head initialSpec == ":defaults" then
+              defaultFilesSpec ++ tail initialSpec
+            else
+              initialSpec;
         in
-          filter (file: match regex file != null) files;
-      go = subdir: filelist: entry:
-        if isString entry then
-          filelist ++ expandWildcards subdir entry
-        else if head entry == ":exclude" then
-          pkgs.lib.subtractLists (expandPackageFiles subdir (tail entry))
-            filelist
-        else
-          filelist ++ (
-            map (prependSubdir (head entry))
-              (expandPackageFiles (subdir + "/${head entry}") (tail entry))
-          );
-      concreteList = if initialSpec == null then
-        defaultFilesSpec
-      else if head initialSpec == ":defaults" then
-        defaultFilesSpec ++ tail initialSpec
-      else
-        initialSpec;
+          builtins.foldl' go [] concreteList;
     in
-      builtins.foldl' (go dir) [] concreteList;
+      expandPackageFiles_ "";
 
   # Format and lint code via pre-commit Git hook.
   # See shell.nix
