@@ -1,0 +1,3 @@
+(mypackage :repo "someuser/mypackage"
+           :fetcher github
+           :files ("mypackage.el"))

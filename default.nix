@@ -12,7 +12,11 @@ let
     if xs == null
     then []
     else map tail (filter (x: head x == key) xs);
-  safeHead = xs: if length xs > 0 then head xs else null;
+  safeHead = xs: if isList xs && length xs > 0 then head xs else null;
+  plistToAlist = xs:
+    if length xs > 0
+    then [(pkgs.lib.take 2 xs)] ++ (plistToAlist (pkgs.lib.drop 2 xs))
+    else [];
 in
 {
   # Parse a Cask file.
@@ -35,5 +39,22 @@ in
         };
         sources = map head (select "source" input);
       };
-    # parseRecipe = str:
+
+  parseRecipe = str:
+    let
+      input = head (fromElisp.fromElisp str);
+      props = plistToAlist (tail input);
+    in
+      {
+        pname = head input;
+        fetcher = safeHead (lookup ":fetcher" props);
+        url = null;
+        repo = safeHead (lookup ":repo" props);
+        commit = safeHead (lookup ":commit" props);
+        branch = safeHead (lookup ":branch" props);
+        version-regexp = safeHead (lookup ":version-regexp" props);
+        files = safeHead (lookup ":files" props);
+      };
+
+  expandPackageFiles = dir: spec: null;
 }
