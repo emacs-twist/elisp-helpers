@@ -3,6 +3,7 @@ let
   recipe1 = parseRecipe (builtins.readFile ./recipe1);
   recipe2 = parseRecipe (builtins.readFile ./recipe2);
   recipe3 = parseRecipe (builtins.readFile ./recipe3);
+  expandResult = expandPackageFiles ./. defaultFilesSpec;
 in
 # recipe 1
 assert (recipe1.pname == "smex");
@@ -19,4 +20,6 @@ assert (recipe3.pname == "flymake-perlcritic");
 assert (recipe3.repo == "illusori/emacs-flymake-perlcritic");
 assert (recipe3.fetcher == "github");
 assert (recipe3.files == ["*.el" ["bin" "bin/flymake_perlcritic"]]);
+# expanding
+assert (expandResult == ["hello.el" "hello2.el"]);
 null

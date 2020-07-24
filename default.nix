@@ -18,7 +18,7 @@ let
     then [(pkgs.lib.take 2 xs)] ++ (plistToAlist (pkgs.lib.drop 2 xs))
     else [];
 in
-{
+rec {
   # Parse a Cask file.
   # See https://cask.readthedocs.io/en/latest/guide/dsl.html
   parseCask = str:
@@ -56,5 +56,40 @@ in
         files = safeHead (lookup ":files" props);
       };
 
-  expandPackageFiles = dir: spec: null;
+  # Based on package-build-default-files-spec in package-build.el.
+  defaultFilesSpec =
+    ["*.el" "*.el.in" "dir"
+    "*.info" "*.texi" "*.texinfo"
+    "doc/dir" "doc/*.info" "doc/*.texi" "doc/*.texinfo"
+    [":exclude" ".dir-locals.el" "test.el" "tests.el" "*-test.el" "*-tests.el"]];
+
+  expandPackageFiles = dir: initialSpec:
+    let
+      filesInDir = dir:
+        pkgs.lib.mapAttrsToList (n: _v: n)
+          (pkgs.lib.filterAttrs (_n: v: v == "regular") (readDir dir));
+      globToRegexp = replaceStrings ["?" "*" "."] ["." ".*" "\\."];
+      regexpQuote = replaceStrings ["." "\\"] ["\\." "\\\\"];
+      prependSubdir = subdir: file: subdir + "/" + file;
+      expandWildcards = dir: pattern:
+        let
+          files = filesInDir dir;
+          regex = globToRegexp pattern;
+        in filter (file: match regex file != null) files;
+      go = subdir: filelist: entry:
+        if isString entry
+        then filelist ++ expandWildcards subdir entry
+        else
+          if head entry == ":exclude"
+          then pkgs.lib.subtractLists (expandPackageFiles subdir (tail entry))
+            filelist
+          else filelist ++ (map (prependSubdir (head entry)) (expandPackageFiles (subdir + "/${head entry}") (tail entry)));
+      concreteList =
+        if initialSpec == null
+        then defaultFilesSpec
+        else
+          if head initialSpec == ":defaults"
+          then defaultFilesSpec ++ tail initialSpec
+          else initialSpec;
+    in builtins.foldl' (go dir) [] concreteList;
 }
