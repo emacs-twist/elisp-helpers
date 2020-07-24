@@ -105,7 +105,13 @@ rec {
               filter (file: match regex file != null) filesWithDirs;
           go = filelist: entry:
             if isString entry then
-              filelist ++ expandWildcards entry
+              let
+                subdir = builtins.dirOf entry;
+                suc = if subdir == "." || prefix == subdir + "/"
+                then expandWildcards entry
+                else expandPackageFiles_ (prefix + "${subdir}/") (dir + "/${subdir}") [ entry ];
+              in
+                filelist ++ suc
             else
               let
                 key = head entry;

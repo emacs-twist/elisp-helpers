@@ -31,7 +31,7 @@ in
   assert (recipe3.fetcher == "github");
   assert (recipe3.files == [ "*.el" [ "bin" "bin/flymake_perlcritic" ] ]);
   # expanding
-  assert (expandResult == [ "hello.el" "hello2.el" ]);
+  assert (expandResult == [ "hello.el" "hello2.el" "doc/hello.info" ]);
   assert (nestedExpansion1 == [ "flymake-perlcritic.el" "bin/flymake_perlcritic" ]);
   assert (nestedExpansion2 == [ "snippets/html-mode/1" "snippets/html-mode/2" "snippets/python-mode/def" "snippets/python-mode/while" ]);
   null
