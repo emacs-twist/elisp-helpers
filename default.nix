@@ -106,9 +106,12 @@ rec {
             if isString entry then
               let
                 subdir = builtins.dirOf entry;
+                subdirAsPath = dir + "/${subdir}";
                 suc = if subdir == "." || prefix == subdir + "/"
                 then expandWildcards entry
-                else expandPackageFiles_ (prefix + "${subdir}/") (dir + "/${subdir}") [ entry ];
+                else if pathExists subdirAsPath
+                then expandPackageFiles_ (prefix + "${subdir}/") subDirAsPath [ entry ]
+                else [];
               in
                 filelist ++ suc
             else
