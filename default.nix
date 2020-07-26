@@ -110,7 +110,7 @@ rec {
                 suc = if subdir == "." || prefix == subdir + "/"
                 then expandWildcards entry
                 else if pathExists subdirAsPath
-                then expandPackageFiles_ (prefix + "${subdir}/") subDirAsPath [ entry ]
+                then expandPackageFiles_ (prefix + "${subdir}/") subdirAsPath [ entry ]
                 else [];
               in
                 filelist ++ suc
