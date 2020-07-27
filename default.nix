@@ -20,9 +20,6 @@ let
       [ (pkgs.lib.take 2 xs) ] ++ (plistToAlist (pkgs.lib.drop 2 xs))
     else
       [];
-
-  # pre-commit hook for development
-  nix-pre-commit-hooks = import sources."pre-commit-hooks.nix";
 in
 rec {
   # Parse a Cask file.
@@ -136,13 +133,4 @@ rec {
     in
       expandPackageFiles_ "";
 
-  # Format and lint code via pre-commit Git hook.
-  # See shell.nix
-  pre-commit-check = nix-pre-commit-hooks.run {
-    src = ./.;
-    hooks = {
-      nixpkgs-fmt.enable = true;
-      nix-linter.enable = true;
-    };
-  };
 }
