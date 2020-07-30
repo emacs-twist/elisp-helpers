@@ -100,9 +100,10 @@ It can be combined with =parseRecipe=:
 
 #+begin_src nix
   let
-    package = parseRecipe ./awesome-package;
+    package = parseRecipe (builtins.readFile ./awesome-package);
     files = expandPackageFiles ./. package.files;
   in
+  assert (files == ["awesome-package.el" "awesome-package-utils.el"]);
   ...
 #+end_src
 ** Credits
