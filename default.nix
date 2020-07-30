@@ -133,4 +133,32 @@ rec {
     in
       expandPackageFiles_ "";
 
+  fetchFromRecipe = recipe@{ fetcher, ... }:
+    let
+      path = split "/" recipe.repo;
+      owner = elemAt path 0;
+      repo = elemAt path 2;
+      rev = recipe.commit;
+      ref = recipe.branch;
+    in
+      if fetcher == "github"
+      then fetchFromGitHub {
+        inherit owner repo rev;
+      }
+      else if fetcher == "gitlab"
+      then fetchFromGitLab {
+        inherit owner repo rev;
+      }
+      else if fetcher == "git"
+      then fetchGit {
+        inherit (recipe) url;
+        inherit rev ref;
+      }
+      else if fetcher == "hg"
+      then fetchMercurial {
+        inherit (recipe) url;
+        inherit rev ref;
+      }
+      else throw ("Unsupported fetcher type: " + fetcher);
+
 }
