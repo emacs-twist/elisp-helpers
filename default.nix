@@ -32,7 +32,7 @@ rec {
       {
         # Package metadata
         package = lookup "package" input;
-        package-files = map head (select "package-file" input);
+        package-file = safeHead (lookup "package-file" input);
         package-descriptor = safeHead (lookup "package-descriptor" input);
         # Package contents
         files = lookup "files" input;
