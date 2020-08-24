@@ -28,6 +28,26 @@ rec {
     let
       input = fromElisp.fromElisp str;
       development = lookup "development" input;
+      dependencies = select "depends-on" input;
+      devDependencies = select "depends-on" development;
+      depToRecipe = xs:
+        if length xs > 2
+        then
+          let
+            recipeAttrs = plistToAlist (tail xs);
+          in
+            {
+              name = head xs;
+              value = {
+                pname = head xs;
+                fetcher = safeHead (lookup ":fetcher" recipeAttrs);
+                git = safeHead (lookup ":git" recipeAttrs);
+                ref = safeHead (lookup ":ref" recipeAttrs);
+                branch = safeHead (lookup ":branch" recipeAttrs);
+                files = safeHead (lookup ":files" recipeAttrs);
+              };
+            }
+        else null;
     in
       {
         # Package metadata
@@ -36,9 +56,13 @@ rec {
         package-descriptor = safeHead (lookup "package-descriptor" input);
         # Package contents
         files = lookup "files" input;
-        dependencies = select "depends-on" input;
-        development = { dependencies = select "depends-on" development; };
+        inherit dependencies;
         sources = map head (select "source" input);
+        development = { dependencies = devDependencies; };
+        overrideRecipes = listToAttrs (
+          filter (x: x != null)
+            (map depToRecipe (dependencies ++ devDependencies))
+        );
       };
 
   # Parse a MELPA recipe.
