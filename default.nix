@@ -50,7 +50,7 @@ rec {
       {
         pname = head input;
         fetcher = safeHead (lookup ":fetcher" props);
-        url = null;
+        url = safeHead (lookup ":url" props);
         repo = safeHead (lookup ":repo" props);
         commit = safeHead (lookup ":commit" props);
         branch = safeHead (lookup ":branch" props);
