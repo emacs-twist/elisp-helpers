@@ -4,6 +4,7 @@ let
   recipe2 = parseRecipe (builtins.readFile ./recipe2);
   recipe3 = parseRecipe (builtins.readFile ./recipe3);
   recipe4 = parseRecipe (builtins.readFile ./recipe4);
+  recipe5 = parseRecipe (builtins.readFile ./recipe5);
   expandResult = expandPackageFiles ./. defaultFilesSpec;
   nestedExpansion1 = expandPackageFiles ./nested1 recipe3.files;
   nestedExpansion2 = expandPackageFiles ./nested2
@@ -53,6 +54,9 @@ in
       ]
     ]
   );
+  # recipe 5
+  assert (recipe5.fetcher == "git");
+  assert (recipe5.url == "https://framagit.org/steckerhalter/discover-my-major.git");
   # expanding
   assert (expandResult == [ "hello.el" "hello2.el" "doc/hello.info" ]);
   assert (nestedExpansion1 == [ "flymake-perlcritic.el" "bin/flymake_perlcritic" ]);
