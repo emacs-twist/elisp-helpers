@@ -62,7 +62,7 @@ in
   ...
 #+end_src
 *** parseRecipe
-=parseRecipe= functions takes a MELPA-style recipe string as an argument and returns its content as an attribute set:
+=parseRecipe= function takess a MELPA-style recipe string as an argument and returns its content as an attribute set:
 
 #+begin_src nix
   # The file contains '(smex :repo "nonsequitur/smex" :fetcher github)'
@@ -80,6 +80,27 @@ It's handy because it returns an attribute set:
   assert (package.fetcher == "github");
   assert (package.files == null);
   ...
+#+end_src
+*** fetchFromRecipe
+=fetchFromRecipe= function takes a MELPA-style recipe string as an argument and fetches a snapshot of the source repository of the package.
+The snapshot is stored in Nix, and the store path is returned.
+
+#+begin_src nix
+  fetchFromRecipe (builtins.readFile ./my-package-recipe)
+#+end_src
+
+#+begin_src nix
+  let
+    recipe = ./dash;
+    src = fetchFromRecipe (builtins.readFile recipe);
+  in
+  pkgs.emacsPackages.melpaBuild {
+    pname = "dash";
+    version = "2.15";
+    # The remote source is used
+    inherit src recipe;
+    ...
+  }
 #+end_src
 *** expandPackageFiles
 =expandPackageFiles= function expands =:files= spec in a recipe under a given directory:
