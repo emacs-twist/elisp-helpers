@@ -1,14 +1,15 @@
+# This file remains for backward compatibility
+{ pkgs ? import <nixpkgs> { } }:
 let
-  defaultNix = (
-    import (
-      let
-        lock = builtins.fromJSON (builtins.readFile ./flake.lock);
-      in
-        fetchTarball {
-          url = "https://github.com/edolstra/flake-compat/archive/${lock.nodes.flake-compat.locked.rev}.tar.gz";
-          sha256 = lock.nodes.flake-compat.locked.narHash;
-        }
-    ) { src = ./.; }
-  ).defaultNix;
+  lock = builtins.fromJSON (builtins.readFile ./flake.lock);
+
+  fromElispSrc = pkgs.fetchFromGitHub {
+    inherit (lock.nodes.fromElisp.locked) owner repo rev;
+    sha256 = lock.nodes.fromElisp.locked.narHash;
+  };
+
+  fromElisp = import (fromElispSrc + "/default.nix") { inherit pkgs; };
 in
-defaultNix.lib.${builtins.currentSystem}
+import ./lib {
+  inherit pkgs fromElisp;
+}
