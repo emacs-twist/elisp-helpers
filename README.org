@@ -127,6 +127,8 @@ It can be combined with =parseRecipe=:
   assert (files == ["awesome-package.el" "awesome-package-utils.el"]);
   ...
 #+end_src
+** Flake support
+You can also use the functions via flake, but they are available under =lib.${system}= due to nixpkgs dependency.
 ** Credits
 This project uses [[https://github.com/talyz/fromElisp][talyz/fromElisp]] for parsing Emacs Lisp expressions in Nix.
 
