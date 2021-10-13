@@ -129,4 +129,4 @@ It can be combined with =parseRecipe=:
 #+end_src
 ** Credits
 This project uses [[https://github.com/talyz/fromElisp][talyz/fromElisp]] for parsing Emacs Lisp expressions in Nix.
-The repository organisation is largely inspired by Damien Cassou's [[https://github.com/DamienCassou/nix-hello-world][nix-hello-world]].
+
