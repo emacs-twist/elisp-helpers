@@ -144,6 +144,23 @@ It can be combined with =parseRecipe=:
 #+end_src
 
 Note that this function may not complete support all of the reference specs.
+** Supported recipe specs
+This library does not support 100% of [[https://github.com/melpa/melpa/#recipe-format][the recipe format]] supported by MELPA.
+This section describes which specs are supported by this library.
+*** =:fetcher=
+The following =:fetcher= types are generally supported: =github=, =gitlab=, and =git=. =hg= may not be supported.
+*** =:url=
+=:url= is supported when you use =git= fetcher.
+*** =:repo=
+=:repo= is supported when you use one of =github= and =gitlab= fetcher types.
+*** =:branch=
+=:branch= is supported.
+*** =:version-regexp=
+=:version-regexp= is not supported. Maybe coming soon.
+*** =:commit=
+=:commit= is supported.
+*** =:files=
+=:files= is supported.
 ** Flake support
 You can also use the functions via flake, but they are available under =lib.${system}= due to nixpkgs dependency.
 ** Credits
