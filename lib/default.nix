@@ -14,6 +14,9 @@ rec {
   fetchFromRecipe = pkgs.callPackage ./fetchFromRecipe.nix {
     inherit parseRecipe;
   };
+  fetchTreeFromRecipe = pkgs.callPackage ./fetchTreeFromRecipe.nix {
+    inherit parseRecipe;
+  };
   expandPackageFiles = pkgs.callPackage ./expandPackageFiles.nix {
     inherit defaultFilesSpec;
   };
