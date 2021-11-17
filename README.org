@@ -130,8 +130,8 @@ It can be combined with =parseRecipe=:
   assert (files == ["awesome-package.el" "awesome-package-utils.el"]);
   ...
 #+end_src
-*** flakeRef
-=flakeRef= function takes a recipe string as an argument and returns a URL-like [[https://nixos.org/manual/nix/unstable/command-ref/new-cli/nix3-flake.html#flake-references][flake reference]]:
+*** flakeRefFromRecipe
+=flakeRefFromRecipe= function takes a recipe string as an argument and returns a URL-like [[https://nixos.org/manual/nix/unstable/command-ref/new-cli/nix3-flake.html#flake-references][flake reference]]:
 
 #+begin_src nix
   let
@@ -139,7 +139,7 @@ It can be combined with =parseRecipe=:
       (smex :repo "nonsequitur/smex" :fetcher github)
     '';
   in
-  assert (flakeRef recipe == "github:nonsequitur/smex");
+  assert (flakeRefFromRecipe recipe == "github:nonsequitur/smex");
   ...
 #+end_src
 

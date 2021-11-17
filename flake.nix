@@ -41,7 +41,7 @@
             };
             pure = pkgs.callPackage ./test/pure-checks.nix {
               inherit (self.lib.${system}) parseCask parseRecipe
-                expandPackageFiles flakeRef;
+                expandPackageFiles flakeRefFromRecipe;
             };
           };
           devShell = nixpkgs.legacyPackages.${system}.mkShell {

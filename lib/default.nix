@@ -20,7 +20,7 @@ rec {
   expandPackageFiles = pkgs.callPackage ./expandPackageFiles.nix {
     inherit defaultFilesSpec;
   };
-  flakeRef = pkgs.callPackage ./flakeRef.nix {
+  flakeRefFromRecipe = pkgs.callPackage ./flakeRefFromRecipe.nix {
     inherit parseRecipe;
   };
 }
