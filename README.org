@@ -102,6 +102,9 @@ The snapshot is stored in Nix, and the store path is returned.
     ...
   }
 #+end_src
+*** fetchTreeFromRecipe
+Like =fetchFromRecipe=, but uses =builtins.fetchTree= which has been added since Nix 2.4.
+Note that this still doesn't work in pure evaluation mode, unless you specify a commit in the recipe.
 *** expandPackageFiles
 =expandPackageFiles= function expands =:files= spec in a recipe under a given directory:
 
