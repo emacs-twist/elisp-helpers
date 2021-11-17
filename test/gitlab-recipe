@@ -1,0 +1,4 @@
+;; https://github.com/melpa/melpa/blob/74f79dc5db5246a2f70e4d4ad76601be8b5c79d8/recipes/gitlab-ci-mode
+(gitlab-ci-mode
+ :fetcher gitlab
+ :repo "joewreschnig/gitlab-ci-mode")
