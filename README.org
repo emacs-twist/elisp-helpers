@@ -143,7 +143,7 @@ It can be combined with =parseRecipe=:
   ...
 #+end_src
 
-Note that this function may not complete support all of the reference specs.
+Note that this function may not completely support all of the reference specs.
 ** Supported recipe specs
 This library does not support 100% of [[https://github.com/melpa/melpa/#recipe-format][the recipe format]] supported by MELPA.
 This section describes which specs are supported by this library.
