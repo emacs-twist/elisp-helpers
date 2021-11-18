@@ -21,7 +21,8 @@ It currently covers the following use cases:
   -  [[#parserecipe][parseRecipe]]
   -  [[#expandpackagefiles][expandPackageFiles]]
 -  [[#credits][Credits]]
-
+** Requirements
+The fetch functions in this package requires Nix 2.4 or later.
 ** Usage
 You can import the repository directly:
 
@@ -81,18 +82,18 @@ It's handy because it returns an attribute set:
   assert (package.files == null);
   ...
 #+end_src
-*** fetchFromRecipe
-=fetchFromRecipe= function takes a MELPA-style recipe string as an argument and fetches a snapshot of the source repository of the package.
+*** fetchTreeFromRecipe
+=fetchTreeFromRecipe= function takes a string or attribute set for a MELPA-style recipe and fetches a snapshot of the source repository of the package.
 The snapshot is stored in Nix, and the store path is returned.
 
 #+begin_src nix
-  fetchFromRecipe (builtins.readFile ./my-package-recipe)
+  fetchTreeFromRecipe (builtins.readFile ./my-package-recipe)
 #+end_src
 
 #+begin_src nix
   let
     recipe = ./dash;
-    src = fetchFromRecipe (builtins.readFile recipe);
+    src = fetchTreeFromRecipe (builtins.readFile recipe);
   in
   pkgs.emacsPackages.melpaBuild {
     pname = "dash";
@@ -102,9 +103,10 @@ The snapshot is stored in Nix, and the store path is returned.
     ...
   }
 #+end_src
-*** fetchTreeFromRecipe
-Like =fetchFromRecipe=, but uses =builtins.fetchTree= which has been added since Nix 2.4.
-Note that this still doesn't work in pure evaluation mode, unless you specify a commit in the recipe.
+
+Note that this function does not work in pure evaluation mode.
+*** fetchFromRecipe
+This function is deprecated. Use =fetchTreeFromRecipe= instead.
 *** expandPackageFiles
 =expandPackageFiles= function expands =:files= spec in a recipe under a given directory:
 

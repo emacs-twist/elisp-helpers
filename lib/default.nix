@@ -43,11 +43,9 @@ let
   flakeUrlRefFromAttrs = import ./flakeUrlRefFromAttrs.nix;
 
   /*
-   * Deprecated. Use fetchTreeFromRecipe
+   * Deprecated. Use fetchTreeFromRecipe instead.
    */
-  fetchFromRecipe = pkgs.callPackage ./fetchFromRecipe.nix {
-    inherit parseRecipe;
-  };
+  fetchFromRecipe = fetchTreeFromRecipe;
 
   /*
    * Fetch the source repository of a recipe using builtins.fetchTree
