@@ -20,6 +20,8 @@ It currently covers the following use cases:
 :END:
 :CONTENTS:
 - [[#requirements][Requirements]]
+- [[#installation][Installation]]
+  - [[#flake][Flake]]
 - [[#usage][Usage]]
   - [[#parsecask][parseCask]]
   - [[#parserecipe][parseRecipe]]
@@ -28,12 +30,12 @@ It currently covers the following use cases:
   - [[#expandpackagefiles][expandPackageFiles]]
   - [[#flakerefurlfromrecipe-and-flakerefurlfromflakerefattrs][flakeRefUrlFromRecipe and flakeRefUrlFromFlakeRefAttrs]]
 - [[#supported-recipe-specs][Supported recipe specs]]
-- [[#flake-support][Flake support]]
 - [[#credits][Credits]]
 :END:
 ** Requirements
 The fetch functions in this package requires Nix 2.4 or later.
-** Usage
+** Installation
+=default.nix= in this repository provides several functions for elisp development.
 You can import the repository directly:
 
 #+begin_src nix
@@ -44,7 +46,7 @@ You can import the repository directly:
   }));
 #+end_src
 
-or you can use =niv=:
+Alternatively, you can use =niv= to add to your repository:
 
 #+begin_src sh
 niv add akirak/nix-elisp-helpers
@@ -53,8 +55,9 @@ niv add akirak/nix-elisp-helpers
 #+begin_src nix
   with (import (import ./nix/sources.nix).nix-elisp-helpers { inherit pkgs; });
 #+end_src
-
-=default.nix= in this repository provides several functions for elisp development.
+*** Flake
+You can also use the functions via flake, but they are available under =lib.${system}= due to an indirect dependency on nixpkgs.
+** Usage
 *** parseCask
 =parseCask= function takes a =Cask= file content as an argument and returns the package data in an attribute set:
 
@@ -180,8 +183,6 @@ The following =:fetcher= types are generally supported: =github=, =gitlab=, and 
 =:commit= is supported.
 *** =:files=
 =:files= is supported.
-** Flake support
-You can also use the functions via flake, but they are available under =lib.${system}= due to nixpkgs dependency.
 ** Credits
 This project uses [[https://github.com/talyz/fromElisp][talyz/fromElisp]] for parsing Emacs Lisp expressions in Nix.
 
