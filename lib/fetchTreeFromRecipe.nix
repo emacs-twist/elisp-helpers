@@ -1,12 +1,11 @@
-# Fetch the source repository of a recipe using builtins.fetchTree
+# 
 #
 # Note that this works only Nix 2.4 or later.
 #
 # This doesn't work in pure evaluation.
-{ lib, parseRecipe }: recipe:
+{ lib }: package:
 with builtins;
 let
-  package = parseRecipe recipe;
   inherit (package) fetcher;
   path = split "/" package.repo;
   owner = elemAt path 0;

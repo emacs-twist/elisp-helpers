@@ -1,8 +1,6 @@
-# Build a URL-like representation of flake reference from a recipe string.
-{ parseRecipe }: recipe:
+package:
 with builtins;
 let
-  package = parseRecipe recipe;
   inherit (package) fetcher;
   branchSuffix =
     if package.branch != null && package.commit == null
