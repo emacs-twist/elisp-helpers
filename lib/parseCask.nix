@@ -1,5 +1,3 @@
-# Parse a Cask file.
-# See https://cask.readthedocs.io/en/latest/guide/dsl.html
 { fromElisp, lib }: str:
 with builtins;
 with import ./utils.nix { inherit lib; };

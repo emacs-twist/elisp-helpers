@@ -5,10 +5,17 @@ with builtins;
 let
   defaultFilesSpec = import ./defaultFilesSpec.nix;
 
+  /*
+   * Parse a Cask file.
+   * See https://cask.readthedocs.io/en/latest/guide/dsl.html
+   */
   parseCask = pkgs.callPackage ./parseCask.nix {
     inherit fromElisp;
   };
 
+  /*
+   * Parse a MELPA-style recipe and return an attribute set.
+   */
   parseRecipe = pkgs.callPackage ./parseRecipe.nix {
     inherit fromElisp;
   };
@@ -23,6 +30,9 @@ let
     then recipe
     else trace recipe (throw "Not a recipe");
 
+  /*
+   * Deprecated. Use fetchTreeFromRecipe
+   */
   fetchFromRecipe = pkgs.callPackage ./fetchFromRecipe.nix {
     inherit parseRecipe;
   };
@@ -34,6 +44,13 @@ let
     { }
     (parseRecipeMaybe recipe);
 
+  /*
+   * Expand :files spec in a MELPA recipe.
+   * dir is a path to a directory (usually the root of a project),
+   * and initialSpec is a list of specs.
+   *
+   * If null is given as initialSpec, defaultFilesSpec is used.
+   */
   expandPackageFiles = pkgs.callPackage ./expandPackageFiles.nix {
     inherit defaultFilesSpec;
   };
