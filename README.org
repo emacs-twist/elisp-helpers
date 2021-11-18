@@ -14,13 +14,21 @@ It currently covers the following use cases:
 #+END_HTML
 ** Table of contents
 :PROPERTIES:
-:TOC: siblings
+:TOC: :include siblings :depth 2 :ignore this
 :END:
--  [[#usage][Usage]]
-  -  [[#parsecask][parseCask]]
-  -  [[#parserecipe][parseRecipe]]
-  -  [[#expandpackagefiles][expandPackageFiles]]
--  [[#credits][Credits]]
+:CONTENTS:
+- [[#requirements][Requirements]]
+- [[#usage][Usage]]
+  - [[#parsecask][parseCask]]
+  - [[#parserecipe][parseRecipe]]
+  - [[#fetchtreefromrecipe-and-flakerefattrsfromrecipe][fetchTreeFromRecipe and flakeRefAttrsFromRecipe]]
+  - [[#fetchfromrecipe][fetchFromRecipe]]
+  - [[#expandpackagefiles][expandPackageFiles]]
+  - [[#flakerefurlfromrecipe-and-flakerefurlfromflakerefattrs][flakeRefUrlFromRecipe and flakeRefUrlFromFlakeRefAttrs]]
+- [[#supported-recipe-specs][Supported recipe specs]]
+- [[#flake-support][Flake support]]
+- [[#credits][Credits]]
+:END:
 ** Requirements
 The fetch functions in this package requires Nix 2.4 or later.
 ** Usage
@@ -151,6 +159,9 @@ Note that this function may not completely support all of the reference specs.
 
 =flakeRefUrlFromFlakeRefAttrs= converts an attribute set to its equivalent URL-style representation.
 ** Supported recipe specs
+:PROPERTIES:
+:TOC: :ignore descendants
+:END:
 This library does not support 100% of [[https://github.com/melpa/melpa/#recipe-format][the recipe format]] supported by MELPA.
 This section describes which specs are supported by this library.
 *** =:fetcher=
