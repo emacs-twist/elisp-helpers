@@ -6,6 +6,8 @@ It currently covers the following use cases:
 
 - Extract dependencies from a =Cask= file
 - Parse a MELPA-style recipe and expand its =:files= spec
+- Fetch the source code from a recipe
+- Convert a recipe to a flake reference to the source repository
 
 #+BEGIN_HTML
 <a href="https://github.com/akirak/nix-elisp-helpers/actions">
@@ -14,14 +16,23 @@ It currently covers the following use cases:
 #+END_HTML
 ** Table of contents
 :PROPERTIES:
-:TOC: siblings
+:TOC: :include siblings :depth 2 :ignore this
 :END:
--  [[#usage][Usage]]
-  -  [[#parsecask][parseCask]]
-  -  [[#parserecipe][parseRecipe]]
-  -  [[#expandpackagefiles][expandPackageFiles]]
--  [[#credits][Credits]]
-
+:CONTENTS:
+- [[#requirements][Requirements]]
+- [[#usage][Usage]]
+  - [[#parsecask][parseCask]]
+  - [[#parserecipe][parseRecipe]]
+  - [[#fetchtreefromrecipe-and-flakerefattrsfromrecipe][fetchTreeFromRecipe and flakeRefAttrsFromRecipe]]
+  - [[#fetchfromrecipe][fetchFromRecipe]]
+  - [[#expandpackagefiles][expandPackageFiles]]
+  - [[#flakerefurlfromrecipe-and-flakerefurlfromflakerefattrs][flakeRefUrlFromRecipe and flakeRefUrlFromFlakeRefAttrs]]
+- [[#supported-recipe-specs][Supported recipe specs]]
+- [[#flake-support][Flake support]]
+- [[#credits][Credits]]
+:END:
+** Requirements
+The fetch functions in this package requires Nix 2.4 or later.
 ** Usage
 You can import the repository directly:
 
@@ -81,18 +92,18 @@ It's handy because it returns an attribute set:
   assert (package.files == null);
   ...
 #+end_src
-*** fetchFromRecipe
-=fetchFromRecipe= function takes a MELPA-style recipe string as an argument and fetches a snapshot of the source repository of the package.
+*** fetchTreeFromRecipe and flakeRefAttrsFromRecipe
+=fetchTreeFromRecipe= function takes a string or attribute set for a MELPA-style recipe and fetches a snapshot of the source repository of the package.
 The snapshot is stored in Nix, and the store path is returned.
 
 #+begin_src nix
-  fetchFromRecipe (builtins.readFile ./my-package-recipe)
+  fetchTreeFromRecipe (builtins.readFile ./my-package-recipe)
 #+end_src
 
 #+begin_src nix
   let
     recipe = ./dash;
-    src = fetchFromRecipe (builtins.readFile recipe);
+    src = fetchTreeFromRecipe (builtins.readFile recipe);
   in
   pkgs.emacsPackages.melpaBuild {
     pname = "dash";
@@ -102,9 +113,12 @@ The snapshot is stored in Nix, and the store path is returned.
     ...
   }
 #+end_src
-*** fetchTreeFromRecipe
-Like =fetchFromRecipe=, but uses =builtins.fetchTree= which has been added since Nix 2.4.
-Note that this still doesn't work in pure evaluation mode, unless you specify a commit in the recipe.
+
+Note that this function does not work in pure evaluation mode.
+
+You can also use =flakeRefAttrsFromRecipe= function to retrieve an attribute set that can be passed to =builtins.fetchTree= function which is available since Nix 2.4.
+*** fetchFromRecipe
+This function is deprecated. Use =fetchTreeFromRecipe= instead.
 *** expandPackageFiles
 =expandPackageFiles= function expands =:files= spec in a recipe under a given directory:
 
@@ -130,8 +144,8 @@ It can be combined with =parseRecipe=:
   assert (files == ["awesome-package.el" "awesome-package-utils.el"]);
   ...
 #+end_src
-*** flakeRefFromRecipe
-=flakeRefFromRecipe= function takes a recipe string as an argument and returns a URL-like [[https://nixos.org/manual/nix/unstable/command-ref/new-cli/nix3-flake.html#flake-references][flake reference]]:
+*** flakeRefUrlFromRecipe and flakeRefUrlFromFlakeRefAttrs
+=flakeRefUrlFromRecipe= function takes a recipe string as an argument and returns a URL-like [[https://nixos.org/manual/nix/unstable/command-ref/new-cli/nix3-flake.html#flake-references][flake reference]]:
 
 #+begin_src nix
   let
@@ -139,12 +153,17 @@ It can be combined with =parseRecipe=:
       (smex :repo "nonsequitur/smex" :fetcher github)
     '';
   in
-  assert (flakeRefFromRecipe recipe == "github:nonsequitur/smex");
+  assert (flakeRefUrlFromRecipe recipe == "github:nonsequitur/smex");
   ...
 #+end_src
 
 Note that this function may not completely support all of the reference specs.
+
+=flakeRefUrlFromFlakeRefAttrs= converts an attribute set to its equivalent URL-style representation.
 ** Supported recipe specs
+:PROPERTIES:
+:TOC: :ignore descendants
+:END:
 This library does not support 100% of [[https://github.com/melpa/melpa/#recipe-format][the recipe format]] supported by MELPA.
 This section describes which specs are supported by this library.
 *** =:fetcher=

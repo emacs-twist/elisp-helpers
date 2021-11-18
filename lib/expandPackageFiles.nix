@@ -1,8 +1,3 @@
-# Expand :files spec in a MELPA recipe.
-# dir is a path to a directory (usually the root of a project),
-# and initialSpec is a list of specs.
-#
-# If null is given as initialSpec, defaultFilesSpec is used.
 { lib, defaultFilesSpec }:
 with builtins;
 with import ./utils.nix { inherit lib; };
