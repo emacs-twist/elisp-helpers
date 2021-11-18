@@ -82,7 +82,7 @@ It's handy because it returns an attribute set:
   assert (package.files == null);
   ...
 #+end_src
-*** fetchTreeFromRecipe
+*** fetchTreeFromRecipe and flakeRefAttrsFromRecipe
 =fetchTreeFromRecipe= function takes a string or attribute set for a MELPA-style recipe and fetches a snapshot of the source repository of the package.
 The snapshot is stored in Nix, and the store path is returned.
 
@@ -105,6 +105,8 @@ The snapshot is stored in Nix, and the store path is returned.
 #+end_src
 
 Note that this function does not work in pure evaluation mode.
+
+You can also use =flakeRefAttrsFromRecipe= function to retrieve an attribute set that can be passed to =builtins.fetchTree= function which is available since Nix 2.4.
 *** fetchFromRecipe
 This function is deprecated. Use =fetchTreeFromRecipe= instead.
 *** expandPackageFiles
@@ -132,7 +134,7 @@ It can be combined with =parseRecipe=:
   assert (files == ["awesome-package.el" "awesome-package-utils.el"]);
   ...
 #+end_src
-*** flakeRefUrlFromRecipe
+*** flakeRefUrlFromRecipe and flakeRefUrlFromFlakeRefAttrs
 =flakeRefUrlFromRecipe= function takes a recipe string as an argument and returns a URL-like [[https://nixos.org/manual/nix/unstable/command-ref/new-cli/nix3-flake.html#flake-references][flake reference]]:
 
 #+begin_src nix
@@ -146,6 +148,8 @@ It can be combined with =parseRecipe=:
 #+end_src
 
 Note that this function may not completely support all of the reference specs.
+
+=flakeRefUrlFromFlakeRefAttrs= converts an attribute set to its equivalent URL-style representation.
 ** Supported recipe specs
 This library does not support 100% of [[https://github.com/melpa/melpa/#recipe-format][the recipe format]] supported by MELPA.
 This section describes which specs are supported by this library.

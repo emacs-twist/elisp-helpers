@@ -40,7 +40,7 @@ let
    * Convert an attribute set of flake reference to a URL-like
    * representation string.
    */
-  flakeRefUrlFromAttrs = import ./flakeRefUrlFromAttrs.nix;
+  flakeRefUrlFromFlakeRefAttrs = import ./flakeRefUrlFromFlakeRefAttrs.nix;
 
   /*
    * Fetch the source repository of a recipe using builtins.fetchTree
@@ -65,12 +65,21 @@ in
     parseCask
     parseRecipe
     fetchTreeFromRecipe
+    flakeRefUrlFromFlakeRefAttrs
     expandPackageFiles;
+
+  /*
+   * Build an attribute set of flake reference from a recipe string or
+   * attribute set.
+   */
+  flakeRefAttrsFromRecipe = recipe:
+    flakeRefAttrsFromRecipeAttrs (parseRecipeMaybe recipe);
+
   /*
    * Build a URL-like representation of flake reference from a recipe string
    * or attribute set.
    */
-  flakeRefUrlFromRecipe = recipe: flakeRefUrlFromAttrs
+  flakeRefUrlFromRecipe = recipe: flakeRefUrlFromFlakeRefAttrs
     (flakeRefAttrsFromRecipeAttrs (parseRecipeMaybe recipe));
 
   /*
