@@ -3,8 +3,7 @@
 }:
 let
   defaultFilesSpec = import ./defaultFilesSpec.nix;
-in
-rec {
+
   parseCask = pkgs.callPackage ./parseCask.nix {
     inherit fromElisp;
   };
@@ -23,4 +22,13 @@ rec {
   flakeRefFromRecipe = pkgs.callPackage ./flakeRefFromRecipe.nix {
     inherit parseRecipe;
   };
+in
+{
+  inherit
+    parseCask
+    parseRecipe
+    fetchFromRecipe
+    fetchTreeFromRecipe
+    expandPackageFiles
+    flakeRefFromRecipe;
 }
