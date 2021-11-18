@@ -31,6 +31,18 @@ let
     else trace recipe (throw "Not a recipe");
 
   /*
+   * Convert a set of MELPA-style package attributes to flake attributes
+   * which suits builtins.fetchTree.
+   */
+  flakeRefAttrsFromRecipeAttrs = pkgs.callPackage ./flakeRefAttrsFromRecipeAttrs.nix { };
+
+  /*
+   * Convert an attribute set of flake reference to a URL-like
+   * representation string.
+   */
+  flakeUrlRefFromAttrs = import ./flakeUrlRefFromAttrs.nix;
+
+  /*
    * Deprecated. Use fetchTreeFromRecipe
    */
   fetchFromRecipe = pkgs.callPackage ./fetchFromRecipe.nix {
@@ -40,9 +52,8 @@ let
   /*
    * Fetch the source repository of a recipe using builtins.fetchTree
    */
-  fetchTreeFromRecipe = recipe: pkgs.callPackage ./fetchTreeFromRecipe.nix
-    { }
-    (parseRecipeMaybe recipe);
+  fetchTreeFromRecipe = recipe:
+    fetchTree (flakeRefAttrsFromRecipeAttrs (parseRecipeMaybe recipe));
 
   /*
    * Expand :files spec in a MELPA recipe.
@@ -58,8 +69,8 @@ let
   /*
    * Build a URL-like representation of flake reference from a recipe string.
    */
-  flakeRefFromRecipe = recipe: pkgs.callPackage ./flakeRefFromRecipe.nix
-    (parseRecipeMaybe recipe);
+  flakeRefFromRecipe = recipe: flakeUrlRefFromAttrs
+    (flakeRefAttrsFromRecipeAttrs (parseRecipeMaybe recipe));
 
 in
 {

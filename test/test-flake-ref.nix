@@ -8,5 +8,5 @@ assert ((flakeRefFromRecipe (readFile ./recipe6)) == "github:jcaw/elnode/melpa")
 assert ((flakeRefFromRecipe (readFile ./recipe7)) ==
   "git://github.com/edolstra/dwarffs");
 assert ((flakeRefFromRecipe (readFile ./gitlab-recipe)) ==
-  "git+https://gitlab.com/joewreschnig/gitlab-ci-mode");
+  "git+https://gitlab.com/joewreschnig/gitlab-ci-mode.git");
 null
