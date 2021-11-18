@@ -43,11 +43,6 @@ let
   flakeRefUrlFromAttrs = import ./flakeRefUrlFromAttrs.nix;
 
   /*
-   * Deprecated. Use fetchTreeFromRecipe instead.
-   */
-  fetchFromRecipe = fetchTreeFromRecipe;
-
-  /*
    * Fetch the source repository of a recipe using builtins.fetchTree
    */
   fetchTreeFromRecipe = recipe:
@@ -69,7 +64,6 @@ in
   inherit
     parseCask
     parseRecipe
-    fetchFromRecipe
     fetchTreeFromRecipe
     expandPackageFiles;
   /*
@@ -79,4 +73,8 @@ in
   flakeRefUrlFromRecipe = recipe: flakeRefUrlFromAttrs
     (flakeRefAttrsFromRecipeAttrs (parseRecipeMaybe recipe));
 
+  /*
+   * Deprecated. Use fetchTreeFromRecipe instead.
+   */
+  fetchFromRecipe = fetchTreeFromRecipe;
 }
