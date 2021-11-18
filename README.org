@@ -6,6 +6,8 @@ It currently covers the following use cases:
 
 - Extract dependencies from a =Cask= file
 - Parse a MELPA-style recipe and expand its =:files= spec
+- Fetch the source code from a recipe
+- Convert a recipe to a flake reference to the source repository
 
 #+BEGIN_HTML
 <a href="https://github.com/akirak/nix-elisp-helpers/actions">
