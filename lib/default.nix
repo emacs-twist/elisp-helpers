@@ -64,12 +64,6 @@ let
     inherit defaultFilesSpec;
   };
 
-  /*
-   * Build a URL-like representation of flake reference from a recipe string.
-   */
-  flakeRefFromRecipe = recipe: flakeRefUrlFromAttrs
-    (flakeRefAttrsFromRecipeAttrs (parseRecipeMaybe recipe));
-
 in
 {
   inherit
@@ -77,6 +71,12 @@ in
     parseRecipe
     fetchFromRecipe
     fetchTreeFromRecipe
-    expandPackageFiles
-    flakeRefFromRecipe;
+    expandPackageFiles;
+  /*
+   * Build a URL-like representation of flake reference from a recipe string
+   * or attribute set.
+   */
+  flakeRefUrlFromRecipe = recipe: flakeRefUrlFromAttrs
+    (flakeRefAttrsFromRecipeAttrs (parseRecipeMaybe recipe));
+
 }
