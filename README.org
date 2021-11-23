@@ -120,8 +120,8 @@ The snapshot is stored in Nix, and the store path is returned.
 Note that this function does not work in pure evaluation mode.
 
 You can also use =flakeRefAttrsFromRecipe= function to retrieve an attribute set that can be passed to =builtins.fetchTree= function which is available since Nix 2.4.
-*** fetchFromRecipe
-This function is deprecated. Use =fetchTreeFromRecipe= instead.
+
+Note: Nixpkgs includes an equivalent function in =pkgs/applications/editors/emacs/elixp-packages/libgenerated.nix=.
 *** expandPackageFiles
 =expandPackageFiles= function expands =:files= spec in a recipe under a given directory:
 
