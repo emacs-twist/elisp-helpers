@@ -3,10 +3,7 @@
 let
   lock = builtins.fromJSON (builtins.readFile ./flake.lock);
 
-  fromElispSrc = pkgs.fetchFromGitHub {
-    inherit (lock.nodes.fromElisp.locked) owner repo rev;
-    sha256 = lock.nodes.fromElisp.locked.narHash;
-  };
+  fromElispSrc = builtins.fetchTree lock.nodes.fromElisp.locked;
 
   fromElisp = import (fromElispSrc + "/default.nix") { inherit pkgs; };
 in
