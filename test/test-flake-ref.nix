@@ -1,12 +1,36 @@
-{ flakeRefUrlFromRecipe }:
+let
+  pkgs = import <nixpkgs> { };
+in
+with (import ../default.nix { inherit pkgs; });
 with builtins;
-assert ((flakeRefUrlFromRecipe (readFile ./recipe1)) == "github:nonsequitur/smex");
-assert ((flakeRefUrlFromRecipe (readFile ./recipe2)) == "github:someuser/mypackage");
-assert ((flakeRefUrlFromRecipe (readFile ./recipe5)) ==
-  "git+https://framagit.org/steckerhalter/discover-my-major.git");
-assert ((flakeRefUrlFromRecipe (readFile ./recipe6)) == "github:jcaw/elnode/melpa");
-assert ((flakeRefUrlFromRecipe (readFile ./recipe7)) ==
-  "git://github.com/edolstra/dwarffs");
-assert ((flakeRefUrlFromRecipe (readFile ./gitlab-recipe)) ==
-  "git+https://gitlab.com/joewreschnig/gitlab-ci-mode.git");
-null
+pkgs.lib.runTests {
+  recipe1 = {
+    expr = flakeRefUrlFromRecipe (readFile ./recipe1);
+    expected = "github:nonsequitur/smex";
+  };
+
+  recipe2 = {
+    expr = flakeRefUrlFromRecipe (readFile ./recipe2);
+    expected = "github:someuser/mypackage";
+  };
+
+  recipe5 = {
+    expr = flakeRefUrlFromRecipe (readFile ./recipe5);
+    expected = "git+https://framagit.org/steckerhalter/discover-my-major.git";
+  };
+
+  recipe6 = {
+    expr = flakeRefUrlFromRecipe (readFile ./recipe6);
+    expected = "github:jcaw/elnode/melpa";
+  };
+
+  recipe7 = {
+    expr = flakeRefUrlFromRecipe (readFile ./recipe7);
+    expected = "git://github.com/edolstra/dwarffs";
+  };
+
+  gitlab = {
+    expr = flakeRefUrlFromRecipe (readFile ./gitlab-recipe);
+    expected = "git+https://gitlab.com/joewreschnig/gitlab-ci-mode.git";
+  };
+}

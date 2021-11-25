@@ -28,7 +28,7 @@
         in
         {
           lib = import ./lib { inherit pkgs fromElisp; };
-          checks = {
+          checks = ({
             pre-commit-check = pre-commit-hooks.lib.${system}.run {
               src = builtins.path {
                 path = ./.;
@@ -39,12 +39,11 @@
                 nix-linter.enable = true;
               };
             };
-            pure = pkgs.callPackage ./test/pure-checks.nix {
-              inherit (self.lib.${system}) parseCask parseRecipe
-                expandPackageFiles flakeRefUrlFromRecipe;
-            };
-          };
-          devShell = nixpkgs.legacyPackages.${system}.mkShell {
+          });
+          devShell = pkgs.mkShell {
+            buildInputs = [
+              pkgs.gnumake
+            ];
             inherit (self.checks.${system}.pre-commit-check) shellHook;
           };
         }
