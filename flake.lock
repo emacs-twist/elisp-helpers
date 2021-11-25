@@ -18,11 +18,11 @@
     "fromElisp": {
       "flake": false,
       "locked": {
-        "lastModified": 1598381796,
-        "narHash": "sha256-JpeIeh4bqbaeenJkpTCYHz1DGGuRHSK6cO1oQsnXEtA=",
+        "lastModified": 1620725665,
+        "narHash": "sha256-xLQDuSXjlTJUPftbT/PTegrn6yySoEYrFlUP5e8Kfuc=",
         "owner": "talyz",
         "repo": "fromElisp",
-        "rev": "c336034a6b49fccfaf4935c3524d0867811c129e",
+        "rev": "1c0d9b629b505a6d7ba050172b2fcaf43fa32801",
         "type": "github"
       },
       "original": {
