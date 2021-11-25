@@ -1,4 +1,10 @@
 * nix-elisp-helpers
+#+BEGIN_HTML
+<a href="https://github.com/akirak/nix-elisp-helpers/actions">
+<img src="https://github.com/akirak/nix-elisp-helpers/workflows/CI/badge.svg">
+</a>
+#+END_HTML
+
 This repository provides some Nix utilities for developing Emacs Lisp packages.
 It uses [[https://github.com/talyz/fromElisp][talyz/fromElisp]] parser to parse S expressions.
 
@@ -8,12 +14,6 @@ It currently covers the following use cases:
 - Parse a MELPA-style recipe and expand its =:files= spec
 - Fetch the source code from a recipe
 - Convert a recipe to a flake reference to the source repository
-
-#+BEGIN_HTML
-<a href="https://github.com/akirak/nix-elisp-helpers/actions">
-<img src="https://github.com/akirak/nix-elisp-helpers/workflows/CI/badge.svg">
-</a>
-#+END_HTML
 ** Table of contents
 :PROPERTIES:
 :TOC: :include siblings :depth 2 :ignore this
