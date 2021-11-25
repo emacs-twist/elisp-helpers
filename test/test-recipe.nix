@@ -7,7 +7,7 @@ let
   defaultFilesSpec = import ../lib/defaultFilesSpec.nix;
 in
 pkgs.lib.runTests {
-  recipe1 = {
+  testRecipe1 = {
     expr = parseRecipe (readFile ./recipe1);
     expected = {
       ename = "smex";
@@ -17,7 +17,7 @@ pkgs.lib.runTests {
     };
   };
 
-  recipe2 = {
+  testRecipe2 = {
     expr = parseRecipe (readFile ./recipe2);
     expected = {
       ename = "mypackage";
@@ -27,7 +27,7 @@ pkgs.lib.runTests {
     };
   };
 
-  recipe3 = {
+  testRecipe3 = {
     expr = parseRecipe (readFile ./recipe3);
     expected = {
       ename = "flymake-perlcritic";
@@ -37,7 +37,7 @@ pkgs.lib.runTests {
     };
   };
 
-  recipe4 = {
+  testRecipe4 = {
     expr = parseRecipe (readFile ./recipe4);
     expected = {
       ename = "org-starter";
@@ -56,7 +56,7 @@ pkgs.lib.runTests {
     };
   };
 
-  recipe5 = {
+  testRecipe5 = {
     expr = parseRecipe (readFile ./recipe5);
     expected = {
       fetcher = "git";
@@ -64,7 +64,7 @@ pkgs.lib.runTests {
     };
   };
 
-  expandResult = {
+  testExpandResult = {
     expr = expandPackageFiles ./. defaultFilesSpec;
     expected = [
       "hello.el"
@@ -73,7 +73,7 @@ pkgs.lib.runTests {
     ];
   };
 
-  nestedExpansion1 = {
+  testNestedExpansion1 = {
     expr = expandPackageFiles ./nested1 recipe3.files;
     expected = [
       "flymake-perlcritic.el"
@@ -81,7 +81,7 @@ pkgs.lib.runTests {
     ];
   };
 
-  nestedExpansion2 = {
+  testNestedExpansion2 = {
     expr = expandPackageFiles ./nested2
       [
         "*.el"
@@ -99,7 +99,7 @@ pkgs.lib.runTests {
     ];
   };
 
-  nestedExpansion3 = {
+  testNestedExpansion3 = {
     expr = expandPackageFiles ./pony-mode
       [
         "src/*.el"
@@ -112,7 +112,7 @@ pkgs.lib.runTests {
     ];
   };
 
-  nestedExpansion4 = {
+  testNestedExpansion4 = {
     expr = expandPackageFiles ./org-starter recipe4.files;
     expected = [
       "org-starter-utils.el"

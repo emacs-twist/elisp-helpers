@@ -7,19 +7,19 @@ let
   cask1 = parseCask (readFile ./Cask);
 in
 pkgs.lib.runTests {
-  package-file = {
+  testPackageFile = {
     expr = cask1.package-file;
     expected = "cask.el";
   };
-  sources = {
+  testSources = {
     expr = cask1.sources;
     expected = [ "gnu" "melpa" ];
   };
-  files = {
+  testFiles = {
     expr = cask1.files;
     expected = null;
   };
-  dependencies = {
+  testDevDependencies = {
     expr = map head cask1.development.dependencies;
     expected = [
       "f"

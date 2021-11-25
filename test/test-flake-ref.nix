@@ -4,32 +4,32 @@ in
 with (import ../default.nix { inherit pkgs; });
 with builtins;
 pkgs.lib.runTests {
-  recipe1 = {
+  testRecipe1 = {
     expr = flakeRefUrlFromRecipe (readFile ./recipe1);
     expected = "github:nonsequitur/smex";
   };
 
-  recipe2 = {
+  testRecipe2 = {
     expr = flakeRefUrlFromRecipe (readFile ./recipe2);
     expected = "github:someuser/mypackage";
   };
 
-  recipe5 = {
+  testRecipe5 = {
     expr = flakeRefUrlFromRecipe (readFile ./recipe5);
     expected = "git+https://framagit.org/steckerhalter/discover-my-major.git";
   };
 
-  recipe6 = {
+  testRecipe6 = {
     expr = flakeRefUrlFromRecipe (readFile ./recipe6);
     expected = "github:jcaw/elnode/melpa";
   };
 
-  recipe7 = {
+  testRecipe7 = {
     expr = flakeRefUrlFromRecipe (readFile ./recipe7);
     expected = "git://github.com/edolstra/dwarffs";
   };
 
-  gitlab = {
+  testGitlab = {
     expr = flakeRefUrlFromRecipe (readFile ./gitlab-recipe);
     expected = "git+https://gitlab.com/joewreschnig/gitlab-ci-mode.git";
   };
