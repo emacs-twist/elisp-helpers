@@ -5,22 +5,31 @@ with (import ../default.nix { inherit pkgs; });
 with builtins;
 let
   defaultFilesSpec = import ../lib/defaultFilesSpec.nix;
+
+  recipe1 = parseRecipe (readFile ./recipe1);
+  recipe2 = parseRecipe (readFile ./recipe2);
+  recipe3 = parseRecipe (readFile ./recipe3);
+  recipe4 = parseRecipe (readFile ./recipe4);
+  recipe5 = parseRecipe (readFile ./recipe5);
+
+  excludeNulls = pkgs.lib.filterAttrs (_: val: val != null);
 in
 pkgs.lib.runTests {
   testRecipe1 = {
-    expr = parseRecipe (readFile ./recipe1);
+    expr = excludeNulls recipe1;
     expected = {
       ename = "smex";
+      pname = "smex";
       repo = "nonsequitur/smex";
       fetcher = "github";
-      files = null;
     };
   };
 
   testRecipe2 = {
-    expr = parseRecipe (readFile ./recipe2);
+    expr = excludeNulls recipe2;
     expected = {
       ename = "mypackage";
+      pname = "mypackage";
       repo = "someuser/mypackage";
       fetcher = "github";
       files = [ "mypackage.el" ];
@@ -28,9 +37,10 @@ pkgs.lib.runTests {
   };
 
   testRecipe3 = {
-    expr = parseRecipe (readFile ./recipe3);
+    expr = excludeNulls recipe3;
     expected = {
       ename = "flymake-perlcritic";
+      pname = "flymake-perlcritic";
       repo = "illusori/emacs-flymake-perlcritic";
       fetcher = "github";
       files = [ "*.el" [ "bin" "bin/flymake_perlcritic" ] ];
@@ -38,9 +48,10 @@ pkgs.lib.runTests {
   };
 
   testRecipe4 = {
-    expr = parseRecipe (readFile ./recipe4);
+    expr = excludeNulls recipe4;
     expected = {
       ename = "org-starter";
+      pname = "org-starter";
       repo = "akirak/org-starter";
       fetcher = "github";
       files = [
@@ -57,8 +68,10 @@ pkgs.lib.runTests {
   };
 
   testRecipe5 = {
-    expr = parseRecipe (readFile ./recipe5);
+    expr = excludeNulls recipe5;
     expected = {
+      ename = "discover-my-major";
+      pname = "discover-my-major";
       fetcher = "git";
       url = "https://framagit.org/steckerhalter/discover-my-major.git";
     };
