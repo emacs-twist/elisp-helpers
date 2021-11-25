@@ -4,9 +4,11 @@ with import ./utils.nix { inherit lib; };
 let
   input = head (fromElisp.fromElisp str);
   props = plistToAlist (tail input);
+  ename = head input;
 in
 {
-  pname = head input;
+  inherit ename;
+  pname = builtins.replaceStrings [ "@" ] [ "at" ] ename;
   fetcher = safeHead (lookup ":fetcher" props);
   url = safeHead (lookup ":url" props);
   repo = safeHead (lookup ":repo" props);

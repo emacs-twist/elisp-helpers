@@ -10,7 +10,7 @@ pkgs.lib.runTests {
   recipe1 = {
     expr = parseRecipe (readFile ./recipe1);
     expected = {
-      pname = "smex";
+      ename = "smex";
       repo = "nonsequitur/smex";
       fetcher = "github";
       files = null;
@@ -20,7 +20,7 @@ pkgs.lib.runTests {
   recipe2 = {
     expr = parseRecipe (readFile ./recipe2);
     expected = {
-      pname = "mypackage";
+      ename = "mypackage";
       repo = "someuser/mypackage";
       fetcher = "github";
       files = [ "mypackage.el" ];
@@ -30,7 +30,7 @@ pkgs.lib.runTests {
   recipe3 = {
     expr = parseRecipe (readFile ./recipe3);
     expected = {
-      pname = "flymake-perlcritic";
+      ename = "flymake-perlcritic";
       repo = "illusori/emacs-flymake-perlcritic";
       fetcher = "github";
       files = [ "*.el" [ "bin" "bin/flymake_perlcritic" ] ];
@@ -40,7 +40,7 @@ pkgs.lib.runTests {
   recipe4 = {
     expr = parseRecipe (readFile ./recipe4);
     expected = {
-      pname = "org-starter";
+      ename = "org-starter";
       repo = "akirak/org-starter";
       fetcher = "github";
       files = [

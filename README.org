@@ -89,7 +89,7 @@ in
 It's handy because it returns an attribute set:
 
 #+begin_src nix
-  assert (package.pname == "smex");
+  assert (package.ename == "smex");
   assert (package.repo == "nonsequitur/smex");
   assert (package.fetcher == "github");
   assert (package.files == null);
