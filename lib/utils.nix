@@ -5,9 +5,9 @@ let
   # Look up a key in an alist-like structure.
   lookup = key: xs:
     let
-      match = filter (x: head x == key) xs;
+      found = filter (x: head x == key) xs;
     in
-    if length match > 0 then tail (head match) else null;
+    if length found > 0 then tail (head found) else null;
 
   # Filter sublists whose head equals to key and return their tails.
   select = key: xs:
@@ -18,10 +18,10 @@ let
 
   # Transform a flat list into a nested list
   plistToAlist = xs:
-    if length xs > 0 then
-      [ (lib.take 2 xs) ] ++ (plistToAlist (lib.drop 2 xs))
+    if length xs == 0 then
+      [ ]
     else
-      [ ];
+      [ (lib.take 2 xs) ] ++ plistToAlist (lib.drop 2 xs);
 
   alistToAttrs = { emptyListToNull }: xs:
     lib.pipe xs [
