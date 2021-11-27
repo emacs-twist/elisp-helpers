@@ -29,6 +29,10 @@ let
     else expandPackageFiles_ (prefix + "${subdir}/") subdirAsPath [ pattern ];
 
   go = prefix: dir: acc: entry:
+    # If :exclude is specified, directories are scanned multiple times. I don't
+    # think it is ideal for performance, but I don't know how to prevent it,
+    # especially if a user spec is merged with the defaults. It may not be a
+    # practical issue.
     if isList entry && head entry == ":exclude"
     then lib.subtractLists (expandPackageFiles_ prefix dir (tail entry)) acc
     else if isString entry
