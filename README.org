@@ -74,25 +74,6 @@ in
   ...
 #+end_src
 *** MELPA package
-**** Supported recipe specs
-:PROPERTIES:
-:TOC: :ignore descendants
-:END:
-This library does not support 100% of [[https://github.com/melpa/melpa/#recipe-format][the recipe format]] supported by MELPA.
-***** =:fetcher=
-The following =:fetcher= types are generally supported: =github=, =gitlab=, and =git=. =hg= may not be supported.
-***** =:url=
-=:url= is supported when you use =git= fetcher.
-***** =:repo=
-=:repo= is supported when you use one of =github= and =gitlab= fetcher types.
-***** =:branch=
-=:branch= is supported.
-***** =:version-regexp=
-=:version-regexp= is not supported. Maybe coming soon.
-***** =:commit=
-=:commit= is supported.
-***** =:files=
-=:files= is supported.
 **** Parsing a MELPA recipe
 =parseRecipe= function takess a MELPA-style recipe string as an argument and returns its content as an attribute set:
 
@@ -180,6 +161,26 @@ It can be combined with =parseRecipe=:
   assert (files == ["awesome-package.el" "awesome-package-utils.el"]);
   ...
 #+end_src
+**** Notes on MELPA recipes
+***** Supported recipe specs
+:PROPERTIES:
+:TOC: :ignore descendants
+:END:
+This library does not support 100% of [[https://github.com/melpa/melpa/#recipe-format][the recipe format]] supported by MELPA.
+****** =:fetcher=
+The following =:fetcher= types are generally supported: =github=, =gitlab=, and =git=. =hg= may not be supported.
+****** =:url=
+=:url= is supported when you use =git= fetcher.
+****** =:repo=
+=:repo= is supported when you use one of =github= and =gitlab= fetcher types.
+****** =:branch=
+=:branch= is supported.
+****** =:version-regexp=
+=:version-regexp= is not supported. Maybe coming soon.
+****** =:commit=
+=:commit= is supported.
+****** =:files=
+=:files= is supported.
 *** ELPA packages
 **** Parsing an ELPA package list
 Parse an ELPA-style package list ([[https://git.savannah.gnu.org/cgit/emacs/elpa.git/plain/elpa-packages][example]]) and returns an attribute set.
