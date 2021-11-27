@@ -4,8 +4,8 @@ let
   inherit (package) fetcher;
   repoPath = split "/" package.repo;
   vcAttrs = lib.filterAttrs (_: v: v != null) {
-    rev = package.commit;
-    ref = package.branch;
+    rev = package.commit or null;
+    ref = package.branch or null;
   };
 
   # These functions are defined for individual types defined in the manual:

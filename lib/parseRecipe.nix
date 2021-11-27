@@ -9,11 +9,5 @@ in
 {
   inherit ename;
   pname = builtins.replaceStrings [ "@" ] [ "at" ] ename;
-  fetcher = safeHead (lookup ":fetcher" props);
-  url = safeHead (lookup ":url" props);
-  repo = safeHead (lookup ":repo" props);
-  commit = safeHead (lookup ":commit" props);
-  branch = safeHead (lookup ":branch" props);
-  version-regexp = safeHead (lookup ":version-regexp" props);
-  files = safeHead (lookup ":files" props);
-}
+} //
+alistToAttrs { emptyListToNull = true; } props
