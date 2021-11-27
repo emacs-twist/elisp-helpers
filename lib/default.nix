@@ -25,25 +25,25 @@ let
   /*
    * Parse a MELPA-style recipe and return an attribute set.
    */
-  parseRecipe = pkgs.callPackage ./parseRecipe.nix {
+  parseMelpaRecipe = pkgs.callPackage ./parseMelpaRecipe.nix {
     inherit fromElisp;
   };
 
   /*
    * If recipe is a string, parse it.
    */
-  parseRecipeMaybe = recipe:
+  parseMelpaRecipeMaybe = recipe:
     if isString recipe
-    then parseRecipe recipe
+    then parseMelpaRecipe recipe
     else if isAttrs recipe
     then recipe
-    else trace recipe (throw "Not a recipe");
+    else trace recipe (throw "A recipe must be either a string or an attr set");
 
   /*
    * Convert a set of MELPA-style package attributes to flake attributes
    * which suits builtins.fetchTree.
    */
-  flakeRefAttrsFromRecipeAttrs = pkgs.callPackage ./flakeRefAttrsFromRecipeAttrs.nix { };
+  flakeRefAttrsFromMelpaRecipeAttrs = pkgs.callPackage ./flakeRefAttrsFromMelpaRecipeAttrs.nix { };
 
   /*
    * Convert an attribute set of an ELPA package to flake attributes.
@@ -59,8 +59,8 @@ let
   /*
    * Fetch the source repository of a recipe using builtins.fetchTree
    */
-  fetchTreeFromRecipe = recipe:
-    fetchTree (flakeRefAttrsFromRecipeAttrs (parseRecipeMaybe recipe));
+  fetchTreeFromMelpaRecipe = recipe:
+    fetchTree (flakeRefAttrsFromMelpaRecipeAttrs (parseMelpaRecipeMaybe recipe));
 
   /*
    * Expand :files spec in a MELPA recipe.
@@ -69,7 +69,7 @@ let
    *
    * If null is given as initialSpec, defaultFilesSpec is used.
    */
-  expandPackageFiles = pkgs.callPackage ./expandPackageFiles.nix {
+  expandMelpaRecipeFiles = pkgs.callPackage ./expandMelpaRecipeFiles.nix {
     inherit defaultFilesSpec;
   };
 
@@ -78,28 +78,45 @@ in
   inherit
     parseCask
     parseElpaPackages
-    parseRecipe
-    fetchTreeFromRecipe
+    parseMelpaRecipe
+    fetchTreeFromMelpaRecipe
     flakeRefAttrsFromElpaAttrs
     flakeRefUrlFromFlakeRefAttrs
-    expandPackageFiles;
+    expandMelpaRecipeFiles;
 
   /*
    * Build an attribute set of flake reference from a recipe string or
    * attribute set.
    */
-  flakeRefAttrsFromRecipe = recipe:
-    flakeRefAttrsFromRecipeAttrs (parseRecipeMaybe recipe);
+  flakeRefAttrsFromMelpaRecipe = recipe:
+    flakeRefAttrsFromMelpaRecipeAttrs (parseMelpaRecipeMaybe recipe);
 
   /*
    * Build a URL-like representation of flake reference from a recipe string
    * or attribute set.
    */
-  flakeRefUrlFromRecipe = recipe: flakeRefUrlFromFlakeRefAttrs
-    (flakeRefAttrsFromRecipeAttrs (parseRecipeMaybe recipe));
+  flakeRefUrlFromMelpaRecipe = recipe: flakeRefUrlFromFlakeRefAttrs
+    (flakeRefAttrsFromMelpaRecipeAttrs (parseMelpaRecipeMaybe recipe));
 
   /*
-   * Deprecated. Use fetchTreeFromRecipe instead.
+   * Deprecated functions
    */
-  fetchFromRecipe = fetchTreeFromRecipe;
+  fetchFromRecipe = str:
+    trace "fetchFromRecipe is deprecated. Use fetchTreeFromMelpaRecipe instead"
+      (fetchTreeFromMelpaRecipe str);
+  parseRecipe = str:
+    trace "parseRecipe is deprecated. Use parseMelpaRecipe instead"
+      (parseMelpaRecipe str);
+  fetchTreeFromRecipe = x:
+    trace "fetchTreeFromRecipe is deprecated. Use fetchTreeFromMelpaRecipe instead"
+      (fetchTreeFromMelpaRecipe x);
+  flakeRefAttrsFromRecipe = x:
+    trace "flakeRefAttrsFromRecipe is deprecated. Use flakeRefAttrsFromMelpaRecipe instead"
+      (flakeRefAttrsFromMelpaRecipe x);
+  flakeRefUrlFromRecipe = x:
+    trace "flakeRefUrlFromRecipe is deprecated. Use flakeRefUrlFromMelpaRecipe instead"
+      (flakeRefUrlFromMelpaRecipe x);
+  expandPackageFiles = x: y: z:
+    trace "expandPackageFiles is deprecated. Use expandMelpaRecipeFiles instead"
+      (expandMelpaRecipeFiles x y z);
 }
