@@ -2,47 +2,43 @@
 with builtins;
 with import ./utils.nix { inherit lib; };
 let
-  expandPackageFiles_ = prefix: dir: initialSpec:
+  globToRegex = replaceStrings [ "?" "*" "." ] [ "." ".*" "\\." ];
+
+  expandDefaults = initialSpec:
+    if initialSpec == null then
+      defaultFilesSpec
+    else if head initialSpec == ":defaults" then
+      defaultFilesSpec ++ tail initialSpec
+    else
+      initialSpec;
+
+  globDir = prefix: dir: pattern:
     let
-      files =
-        lib.mapAttrsToList (n: _v: n) (readDir dir);
-      expandWildcards = pattern:
-        let
-          regex = replaceStrings [ "?" "*" "." ] [ "." ".*" "\\." ] pattern;
-          filesWithDirs = map (file: prefix + file) files;
-        in
-        filter (file: match regex file != null) filesWithDirs;
-      go = filelist: entry:
-        if isString entry then
-          let
-            subdir = dirOf entry;
-            subdirAsPath = dir + "/${subdir}";
-            suc =
-              if subdir == "." || prefix == subdir + "/"
-              then expandWildcards entry
-              else if pathExists subdirAsPath
-              then expandPackageFiles_ (prefix + "${subdir}/") subdirAsPath [ entry ]
-              else [ ];
-          in
-          filelist ++ suc
-        else
-          let
-            key = head entry;
-          in
-          if key == ":exclude" then
-            lib.subtractLists (expandPackageFiles_ prefix dir (tail entry)) filelist
-          else
-            filelist ++ (
-              expandPackageFiles_ (prefix + "${key}/") (dir + "/${key}") (tail entry)
-            );
-      concreteList =
-        if initialSpec == null then
-          defaultFilesSpec
-        else if head initialSpec == ":defaults" then
-          defaultFilesSpec ++ tail initialSpec
-        else
-          initialSpec;
+      subdir = dirOf pattern;
+      subdirAsPath = dir + "/${subdir}";
     in
-    foldl' go [ ] concreteList;
+    if subdir == "." || prefix == subdir + "/"
+    then
+      lib.pipe (readDir dir) [
+        attrNames
+        (map (file: prefix + file))
+        (filter (file: match (globToRegex pattern) file != null))
+      ]
+    else if ! pathExists subdirAsPath
+    then [ ]
+    else expandPackageFiles_ (prefix + "${subdir}/") subdirAsPath [ pattern ];
+
+  go = prefix: dir: acc: entry:
+    if isList entry && head entry == ":exclude"
+    then lib.subtractLists (expandPackageFiles_ prefix dir (tail entry)) acc
+    else if isString entry
+    then
+      acc ++ globDir prefix dir entry
+    else
+      acc ++
+      expandPackageFiles_ (prefix + "${head entry}/") (dir + "/${head entry}") (tail entry);
+
+  expandPackageFiles_ = prefix: dir: foldl' (go prefix dir) [ ];
 in
-expandPackageFiles_ ""
+dir: initialSpec:
+expandPackageFiles_ "" dir (expandDefaults initialSpec)
