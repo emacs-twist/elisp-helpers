@@ -1,23 +1,15 @@
 * nix-elisp-helpers
+:PROPERTIES:
+:TOC: :include siblings :depth 2 :ignore this
+:END:
 #+BEGIN_HTML
 <a href="https://github.com/akirak/nix-elisp-helpers/actions">
 <img src="https://github.com/akirak/nix-elisp-helpers/workflows/CI/badge.svg">
 </a>
 #+END_HTML
 
-This repository provides some Nix utilities for developing Emacs Lisp packages.
+This repository provides some Nix functions for getting information of Emacs Lisp packages.
 It uses [[https://github.com/talyz/fromElisp][talyz/fromElisp]] parser to parse S expressions.
-
-It currently covers the following use cases:
-
-- Extract dependencies from a =Cask= file
-- Parse a MELPA-style recipe and expand its =:files= spec
-- Fetch the source code from a recipe
-- Convert a recipe to a flake reference to the source repository
-** Table of contents
-:PROPERTIES:
-:TOC: :include siblings :depth 2 :ignore this
-:END:
 :CONTENTS:
 - [[#requirements][Requirements]]
 - [[#installation][Installation]]
@@ -33,6 +25,10 @@ It currently covers the following use cases:
   - [[#supported-recipe-specs][Supported recipe specs]]
 - [[#credits][Credits]]
 :END:
+** Features
+This repository provides functions for parsing a Cask file, a MELPA-style recipe, and a package list on ELPA. Then you can use the parsing result to inspect dependencies, fetch the source repository, and generate a list of files of the package.
+
+It also has good support for flake references. You can get a flake reference to the source repository of a package.
 ** Requirements
 The fetch functions in this package requires Nix 2.4 or later.
 ** Installation
@@ -59,7 +55,8 @@ niv add akirak/nix-elisp-helpers
 *** Flake
 You can also use the functions via flake, but they are available under =lib.${system}= due to an indirect dependency on nixpkgs.
 ** Usage
-*** parseCask
+*** Cask
+**** Parsing a Cask file
 =parseCask= function takes a =Cask= file content as an argument and returns the package data in an attribute set:
 
 #+begin_src nix
@@ -76,20 +73,27 @@ in
     ["f" "s" "dash" "ansi" "ecukes" "servant" "ert-runner" "el-mock" "noflet" "ert-async" "shell-split-string"]);
   ...
 #+end_src
-*** parseElpaPackages
-Parse an ELPA-style package list ([[https://git.savannah.gnu.org/cgit/emacs/elpa.git/plain/elpa-packages][example]]) and returns an attribute set.
-
-#+begin_src nix
-packages = parseElpaPackages (builtins.readFile ./elpa-packages)
-#+end_src
-
-Each value in the attribute set (which should be originally a plist) is converted to an attribute set:
-
-#+begin_src nix
-  assert (packages.ztree.url == "https://github.com/fourier/ztree");
-  ...
-#+end_src
-*** parseRecipe
+*** MELPA package
+**** Supported recipe specs
+:PROPERTIES:
+:TOC: :ignore descendants
+:END:
+This library does not support 100% of [[https://github.com/melpa/melpa/#recipe-format][the recipe format]] supported by MELPA.
+***** =:fetcher=
+The following =:fetcher= types are generally supported: =github=, =gitlab=, and =git=. =hg= may not be supported.
+***** =:url=
+=:url= is supported when you use =git= fetcher.
+***** =:repo=
+=:repo= is supported when you use one of =github= and =gitlab= fetcher types.
+***** =:branch=
+=:branch= is supported.
+***** =:version-regexp=
+=:version-regexp= is not supported. Maybe coming soon.
+***** =:commit=
+=:commit= is supported.
+***** =:files=
+=:files= is supported.
+**** Parsing a MELPA recipe
 =parseRecipe= function takess a MELPA-style recipe string as an argument and returns its content as an attribute set:
 
 #+begin_src nix
@@ -109,7 +113,7 @@ It's handy because it returns an attribute set:
   assert (package.files == null);
   ...
 #+end_src
-*** fetchTreeFromRecipe and flakeRefAttrsFromRecipe
+**** Converting a MELPA recipe to a flake reference
 =fetchTreeFromRecipe= function takes a string or attribute set for a MELPA-style recipe and fetches a snapshot of the source repository of the package.
 The snapshot is stored in Nix, and the store path is returned.
 
@@ -136,20 +140,22 @@ Note that this function does not work in pure evaluation mode.
 You can also use =flakeRefAttrsFromRecipe= function to retrieve an attribute set that can be passed to =builtins.fetchTree= function which is available since Nix 2.4.
 
 Note: Nixpkgs includes an equivalent function in =pkgs/applications/editors/emacs/elixp-packages/libgenerated.nix=.
-*** flakeRefAttrsFromElpaAttrs
-=flakeRefAttrsFromElpaAttrs= takes an attribute set from a value in the result of =parseElpaPackages= and returns an attribute set that can be passed to =builtins.fetchTree=:
+
+=flakeRefUrlFromRecipe= function takes a recipe string as an argument and returns a URL-like [[https://nixos.org/manual/nix/unstable/command-ref/new-cli/nix3-flake.html#flake-references][flake reference]]:
 
 #+begin_src nix
   let
-    packages = parseElpaPackages (builtins.readFile ./elpa-packages);
+    recipe = ''
+      (smex :repo "nonsequitur/smex" :fetcher github)
+    '';
   in
-  builtins.fetchTree (flakeRefAttrsFromElpaAttrs {} packages.ztree)
+  assert (flakeRefUrlFromRecipe recipe == "github:nonsequitur/smex");
+  ...
 #+end_src
 
-The first argument is an attribute set which can consist of the following options:
+Note that this function may not completely support all of the reference specs.
 
-- If =preferReleaseBranch= is true, =:release-branch= is chosen as the branch if there is one.
-*** expandPackageFiles
+**** Expanding the files spec a MELPA recipe
 =expandPackageFiles= function expands =:files= spec in a recipe under a given directory:
 
 #+begin_src nix
@@ -174,43 +180,36 @@ It can be combined with =parseRecipe=:
   assert (files == ["awesome-package.el" "awesome-package-utils.el"]);
   ...
 #+end_src
-*** flakeRefUrlFromRecipe and flakeRefUrlFromFlakeRefAttrs
-=flakeRefUrlFromRecipe= function takes a recipe string as an argument and returns a URL-like [[https://nixos.org/manual/nix/unstable/command-ref/new-cli/nix3-flake.html#flake-references][flake reference]]:
+*** ELPA packages
+**** Parsing an ELPA package list
+Parse an ELPA-style package list ([[https://git.savannah.gnu.org/cgit/emacs/elpa.git/plain/elpa-packages][example]]) and returns an attribute set.
+
+#+begin_src nix
+packages = parseElpaPackages (builtins.readFile ./elpa-packages)
+#+end_src
+
+Each value in the attribute set (which should be originally a plist) is converted to an attribute set:
+
+#+begin_src nix
+  assert (packages.ztree.url == "https://github.com/fourier/ztree");
+  ...
+#+end_src
+**** Converting an ELPA package entry to a flake reference
+=flakeRefAttrsFromElpaAttrs= takes an attribute set from a value in the result of =parseElpaPackages= and returns an attribute set that can be passed to =builtins.fetchTree=:
 
 #+begin_src nix
   let
-    recipe = ''
-      (smex :repo "nonsequitur/smex" :fetcher github)
-    '';
+    packages = parseElpaPackages (builtins.readFile ./elpa-packages);
   in
-  assert (flakeRefUrlFromRecipe recipe == "github:nonsequitur/smex");
-  ...
+  builtins.fetchTree (flakeRefAttrsFromElpaAttrs {} packages.ztree)
 #+end_src
 
-Note that this function may not completely support all of the reference specs.
+The first argument is an attribute set which can consist of the following options:
 
+- If =preferReleaseBranch= is true, =:release-branch= is chosen as the branch if there is one.
+*** Other utility functions
+**** Converting a flake reference to another representation
 =flakeRefUrlFromFlakeRefAttrs= converts an attribute set to its equivalent URL-style representation.
-** Details
-*** Supported recipe specs
-:PROPERTIES:
-:TOC: :ignore descendants
-:END:
-This library does not support 100% of [[https://github.com/melpa/melpa/#recipe-format][the recipe format]] supported by MELPA.
-This section describes which specs are supported by this library.
-**** =:fetcher=
-The following =:fetcher= types are generally supported: =github=, =gitlab=, and =git=. =hg= may not be supported.
-**** =:url=
-=:url= is supported when you use =git= fetcher.
-**** =:repo=
-=:repo= is supported when you use one of =github= and =gitlab= fetcher types.
-**** =:branch=
-=:branch= is supported.
-**** =:version-regexp=
-=:version-regexp= is not supported. Maybe coming soon.
-**** =:commit=
-=:commit= is supported.
-**** =:files=
-=:files= is supported.
 ** Credits
 This project uses [[https://github.com/talyz/fromElisp][talyz/fromElisp]] for parsing Emacs Lisp expressions in Nix.
 
