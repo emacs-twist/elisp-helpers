@@ -13,6 +13,15 @@ let
     inherit fromElisp;
   };
 
+  /**
+   * Parse a package list used by GNU ELPA and NonGNU ELPA.
+   *
+   * See https://git.savannah.gnu.org/cgit/emacs/elpa.git/tree/elpa-packages for example.
+   */
+  parseElpaPackages = pkgs.callPackage ./parseElpaPackages.nix {
+    inherit fromElisp;
+  };
+
   /*
    * Parse a MELPA-style recipe and return an attribute set.
    */
@@ -63,6 +72,7 @@ in
 {
   inherit
     parseCask
+    parseElpaPackages
     parseRecipe
     fetchTreeFromRecipe
     flakeRefUrlFromFlakeRefAttrs

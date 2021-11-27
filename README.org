@@ -24,12 +24,13 @@ It currently covers the following use cases:
   - [[#flake][Flake]]
 - [[#usage][Usage]]
   - [[#parsecask][parseCask]]
+  - [[#parseelpapackages][parseElpaPackages]]
   - [[#parserecipe][parseRecipe]]
   - [[#fetchtreefromrecipe-and-flakerefattrsfromrecipe][fetchTreeFromRecipe and flakeRefAttrsFromRecipe]]
-  - [[#fetchfromrecipe][fetchFromRecipe]]
   - [[#expandpackagefiles][expandPackageFiles]]
   - [[#flakerefurlfromrecipe-and-flakerefurlfromflakerefattrs][flakeRefUrlFromRecipe and flakeRefUrlFromFlakeRefAttrs]]
-- [[#supported-recipe-specs][Supported recipe specs]]
+- [[#details][Details]]
+  - [[#supported-recipe-specs][Supported recipe specs]]
 - [[#credits][Credits]]
 :END:
 ** Requirements
@@ -73,6 +74,19 @@ in
 #+begin_src nix
   assert (builtins.map builtins.head packageInfo.development.dependencies ==
     ["f" "s" "dash" "ansi" "ecukes" "servant" "ert-runner" "el-mock" "noflet" "ert-async" "shell-split-string"]);
+  ...
+#+end_src
+*** parseElpaPackages
+Parse an ELPA-style package list ([[https://git.savannah.gnu.org/cgit/emacs/elpa.git/plain/elpa-packages][example]]) and returns an attribute set.
+
+#+begin_src nix
+packages = parseElpaPackages (builtins.readFile ./elpa-packages)
+#+end_src
+
+Each value in the attribute set (which should be originally a plist) is converted to an attribute set:
+
+#+begin_src nix
+  assert (packages.ztree.url == "https://github.com/fourier/ztree");
   ...
 #+end_src
 *** parseRecipe

@@ -22,4 +22,17 @@ rec {
       [ (lib.take 2 xs) ] ++ (plistToAlist (lib.drop 2 xs))
     else
       [ ];
+
+  alistToAttrs = { emptyListToNull }: xs:
+    lib.pipe xs [
+      (map (cell: {
+        name = lib.removePrefix ":" (head cell);
+        value =
+          # There was a malformed recipe, so it needs a length check.
+          if (length cell < 2) || (emptyListToNull && (elemAt cell 1) == [ ])
+          then null
+          else (elemAt cell 1);
+      }))
+      listToAttrs
+    ];
 }
