@@ -28,7 +28,11 @@ let
       (map (cell: {
         name = lib.removePrefix ":" (head cell);
         value =
-          # There was a malformed recipe, so it needs a length check.
+          # There can be a plist where no value is provided for the final key,
+          # which should be considered a nil value.
+          #
+          # This is valid in lisp, but there is a missing cell, so you have
+          # to check it.
           if (length cell < 2) || (emptyListToNull && (elemAt cell 1) == [ ])
           then null
           else (elemAt cell 1);
