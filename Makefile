@@ -5,4 +5,4 @@ test: $(tests)
 test/%.nix: .PHONY
 	nix-instantiate --eval --strict --json $@ | jq
 
-.PHONY: tests
+.PHONY: test
