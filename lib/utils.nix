@@ -1,7 +1,7 @@
 # A collection of utility functions
 { lib }:
 with builtins;
-rec {
+let
   # Look up a key in an alist-like structure.
   lookup = key: xs:
     let
@@ -35,4 +35,7 @@ rec {
       }))
       listToAttrs
     ];
+in
+{
+  inherit lookup select safeHead plistToAlist alistToAttrs;
 }
