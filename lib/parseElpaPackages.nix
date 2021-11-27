@@ -6,7 +6,6 @@ lib.pipe str [
   head
   (map (tree: {
     name = head tree;
-    # value = (tail tree);
     value =
       alistToAttrs { emptyListToNull = true; }
         (plistToAlist (tail tree));
