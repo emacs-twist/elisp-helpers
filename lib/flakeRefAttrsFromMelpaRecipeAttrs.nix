@@ -1,11 +1,10 @@
-{ lib }: package:
+{ lib }: package @ { fetcher, commit ? null, branch ? null, ... }:
 with builtins;
 let
-  inherit (package) fetcher;
   repoPath = split "/" package.repo;
   vcAttrs = lib.filterAttrs (_: v: v != null) {
-    rev = package.commit;
-    ref = package.branch;
+    rev = commit;
+    ref = branch;
   };
 
   # These functions are defined for individual types defined in the manual:

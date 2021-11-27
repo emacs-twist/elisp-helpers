@@ -6,11 +6,11 @@ with builtins;
 let
   defaultFilesSpec = import ../lib/defaultFilesSpec.nix;
 
-  recipe1 = parseRecipe (readFile ./recipe1);
-  recipe2 = parseRecipe (readFile ./recipe2);
-  recipe3 = parseRecipe (readFile ./recipe3);
-  recipe4 = parseRecipe (readFile ./recipe4);
-  recipe5 = parseRecipe (readFile ./recipe5);
+  recipe1 = parseMelpaRecipe (readFile ./recipe1);
+  recipe2 = parseMelpaRecipe (readFile ./recipe2);
+  recipe3 = parseMelpaRecipe (readFile ./recipe3);
+  recipe4 = parseMelpaRecipe (readFile ./recipe4);
+  recipe5 = parseMelpaRecipe (readFile ./recipe5);
 
   excludeNulls = pkgs.lib.filterAttrs (_: val: val != null);
 in
@@ -78,7 +78,7 @@ pkgs.lib.runTests {
   };
 
   testExpandResult = {
-    expr = expandPackageFiles ./. defaultFilesSpec;
+    expr = expandMelpaRecipeFiles ./. defaultFilesSpec;
     expected = [
       "hello.el"
       "hello2.el"
@@ -87,7 +87,7 @@ pkgs.lib.runTests {
   };
 
   testNestedExpansion1 = {
-    expr = expandPackageFiles ./nested1 recipe3.files;
+    expr = expandMelpaRecipeFiles ./nested1 recipe3.files;
     expected = [
       "flymake-perlcritic.el"
       "bin/flymake_perlcritic"
@@ -95,7 +95,7 @@ pkgs.lib.runTests {
   };
 
   testNestedExpansion2 = {
-    expr = expandPackageFiles ./nested2
+    expr = expandMelpaRecipeFiles ./nested2
       [
         "*.el"
         [
@@ -113,7 +113,7 @@ pkgs.lib.runTests {
   };
 
   testNestedExpansion3 = {
-    expr = expandPackageFiles ./pony-mode
+    expr = expandMelpaRecipeFiles ./pony-mode
       [
         "src/*.el"
         "snippets"
@@ -126,7 +126,7 @@ pkgs.lib.runTests {
   };
 
   testNestedExpansion4 = {
-    expr = expandPackageFiles ./org-starter recipe4.files;
+    expr = expandMelpaRecipeFiles ./org-starter recipe4.files;
     expected = [
       "org-starter-utils.el"
       "org-starter.el"

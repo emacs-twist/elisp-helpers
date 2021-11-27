@@ -72,12 +72,12 @@ in
 #+end_src
 *** MELPA package
 **** Parsing a MELPA recipe
-=parseRecipe= function takess a MELPA-style recipe string as an argument and returns its content as an attribute set:
+=parseMelpaRecipe= function takess a MELPA-style recipe string as an argument and returns its content as an attribute set:
 
 #+begin_src nix
   # The file contains '(smex :repo "nonsequitur/smex" :fetcher github)'
   let
-    package = parseRecipe (builtins.readFile ./smex);
+    package = parseMelpaRecipe (builtins.readFile ./smex);
   in
   ...
 #+end_src
@@ -92,17 +92,17 @@ It's handy because it returns an attribute set:
   ...
 #+end_src
 **** Converting a MELPA recipe to a flake reference
-=fetchTreeFromRecipe= function takes a string or attribute set for a MELPA-style recipe and fetches a snapshot of the source repository of the package.
+=fetchTreeFromMelpaRecipe= function takes a string or attribute set for a MELPA-style recipe and fetches a snapshot of the source repository of the package.
 The snapshot is stored in Nix, and the store path is returned.
 
 #+begin_src nix
-  fetchTreeFromRecipe (builtins.readFile ./my-package-recipe)
+  fetchTreeFromMelpaRecipe (builtins.readFile ./my-package-recipe)
 #+end_src
 
 #+begin_src nix
   let
     recipe = ./dash;
-    src = fetchTreeFromRecipe (builtins.readFile recipe);
+    src = fetchTreeFromMelpaRecipe (builtins.readFile recipe);
   in
   pkgs.emacsPackages.melpaBuild {
     pname = "dash";
@@ -115,11 +115,11 @@ The snapshot is stored in Nix, and the store path is returned.
 
 Note that this function does not work in pure evaluation mode.
 
-You can also use =flakeRefAttrsFromRecipe= function to retrieve an attribute set that can be passed to =builtins.fetchTree= function which is available since Nix 2.4.
+You can also use =flakeRefAttrsFromMelpaRecipe= function to retrieve an attribute set that can be passed to =builtins.fetchTree= function which is available since Nix 2.4.
 
 Note: Nixpkgs includes an equivalent function in =pkgs/applications/editors/emacs/elixp-packages/libgenerated.nix=.
 
-=flakeRefUrlFromRecipe= function takes a recipe string as an argument and returns a URL-like [[https://nixos.org/manual/nix/unstable/command-ref/new-cli/nix3-flake.html#flake-references][flake reference]]:
+=flakeRefUrlFromMelpaRecipe= function takes a recipe string as an argument and returns a URL-like [[https://nixos.org/manual/nix/unstable/command-ref/new-cli/nix3-flake.html#flake-references][flake reference]]:
 
 #+begin_src nix
   let
@@ -127,17 +127,17 @@ Note: Nixpkgs includes an equivalent function in =pkgs/applications/editors/emac
       (smex :repo "nonsequitur/smex" :fetcher github)
     '';
   in
-  assert (flakeRefUrlFromRecipe recipe == "github:nonsequitur/smex");
+  assert (flakeRefUrlFromMelpaRecipe recipe == "github:nonsequitur/smex");
   ...
 #+end_src
 
 Note that this function may not completely support all of the reference specs.
 
 **** Expanding the files spec a MELPA recipe
-=expandPackageFiles= function expands =:files= spec in a recipe under a given directory:
+=expandMelpaRecipeFiles= function expands =:files= spec in a recipe under a given directory:
 
 #+begin_src nix
-  expandPackageFiles ./. ["*.el" [":excludes" ".dir-locals.el" "*-test.el"]]
+  expandMelpaRecipeFiles ./. ["*.el" [":excludes" ".dir-locals.el" "*-test.el"]]
 #+end_src
 
 It returns a list of matching files relative from the directory:
@@ -148,12 +148,12 @@ It returns a list of matching files relative from the directory:
 
 The first argument must be a path to a directory, and the second argument can be either a list or =null=. When =null= is given as a spec, the default spec of MELPA is used.
 
-It can be combined with =parseRecipe=:
+It can be combined with =parseMelpaRecipe=:
 
 #+begin_src nix
   let
-    package = parseRecipe (builtins.readFile ./awesome-package);
-    files = expandPackageFiles ./. package.files;
+    package = parseMelpaRecipe (builtins.readFile ./awesome-package);
+    files = expandMelpaRecipeFiles ./. package.files;
   in
   assert (files == ["awesome-package.el" "awesome-package-utils.el"]);
   ...
