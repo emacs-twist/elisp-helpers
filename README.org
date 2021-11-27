@@ -11,19 +11,16 @@
 This repository provides some Nix functions for getting information of Emacs Lisp packages.
 It uses [[https://github.com/talyz/fromElisp][talyz/fromElisp]] parser to parse S expressions.
 :CONTENTS:
-- [[#requirements][Requirements]]
-- [[#installation][Installation]]
-  - [[#flake][Flake]]
-- [[#usage][Usage]]
-  - [[#parsecask][parseCask]]
-  - [[#parseelpapackages][parseElpaPackages]]
-  - [[#parserecipe][parseRecipe]]
-  - [[#fetchtreefromrecipe-and-flakerefattrsfromrecipe][fetchTreeFromRecipe and flakeRefAttrsFromRecipe]]
-  - [[#expandpackagefiles][expandPackageFiles]]
-  - [[#flakerefurlfromrecipe-and-flakerefurlfromflakerefattrs][flakeRefUrlFromRecipe and flakeRefUrlFromFlakeRefAttrs]]
-- [[#details][Details]]
-  - [[#supported-recipe-specs][Supported recipe specs]]
-- [[#credits][Credits]]
+- [[#features][Features]]
+  - [[#requirements][Requirements]]
+  - [[#installation][Installation]]
+    - [[#flake][Flake]]
+  - [[#usage][Usage]]
+    - [[#cask][Cask]]
+    - [[#melpa-package][MELPA package]]
+    - [[#elpa-packages][ELPA packages]]
+    - [[#other-utility-functions][Other utility functions]]
+  - [[#credits][Credits]]
 :END:
 ** Features
 This repository provides functions for parsing a Cask file, a MELPA-style recipe, and a package list on ELPA. Then you can use the parsing result to inspect dependencies, fetch the source repository, and generate a list of files of the package.
