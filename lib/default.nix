@@ -46,6 +46,11 @@ let
   flakeRefAttrsFromRecipeAttrs = pkgs.callPackage ./flakeRefAttrsFromRecipeAttrs.nix { };
 
   /*
+   * Convert an attribute set of an ELPA package to flake attributes.
+   */
+  flakeRefAttrsFromElpaAttrs = pkgs.callPackage ./flakeRefAttrsFromElpaAttrs.nix { };
+
+  /*
    * Convert an attribute set of flake reference to a URL-like
    * representation string.
    */
@@ -75,6 +80,7 @@ in
     parseElpaPackages
     parseRecipe
     fetchTreeFromRecipe
+    flakeRefAttrsFromElpaAttrs
     flakeRefUrlFromFlakeRefAttrs
     expandPackageFiles;
 

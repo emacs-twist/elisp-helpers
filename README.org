@@ -136,6 +136,19 @@ Note that this function does not work in pure evaluation mode.
 You can also use =flakeRefAttrsFromRecipe= function to retrieve an attribute set that can be passed to =builtins.fetchTree= function which is available since Nix 2.4.
 
 Note: Nixpkgs includes an equivalent function in =pkgs/applications/editors/emacs/elixp-packages/libgenerated.nix=.
+*** flakeRefAttrsFromElpaAttrs
+=flakeRefAttrsFromElpaAttrs= takes an attribute set from a value in the result of =parseElpaPackages= and returns an attribute set that can be passed to =builtins.fetchTree=:
+
+#+begin_src nix
+  let
+    packages = parseElpaPackages (builtins.readFile ./elpa-packages);
+  in
+  builtins.fetchTree (flakeRefAttrsFromElpaAttrs {} packages.ztree)
+#+end_src
+
+The first argument is an attribute set which can consist of the following options:
+
+- If =preferReleaseBranch= is true, =:release-branch= is chosen as the branch if there is one.
 *** expandPackageFiles
 =expandPackageFiles= function expands =:files= spec in a recipe under a given directory:
 
