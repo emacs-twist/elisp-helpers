@@ -94,6 +94,8 @@ in
     parseElpaPackages
     parseMelpaRecipe
     fetchTreeFromMelpaRecipe
+    flakeRefUrlFromMelpaRecipe
+    flakeRefAttrsFromMelpaRecipe
     flakeRefAttrsFromElpaAttrs
     flakeRefUrlFromFlakeRefAttrs
     expandMelpaRecipeFiles;
