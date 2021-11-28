@@ -46,6 +46,20 @@ let
   flakeRefAttrsFromMelpaRecipeAttrs = pkgs.callPackage ./flakeRefAttrsFromMelpaRecipeAttrs.nix { };
 
   /*
+   * Build an attribute set of flake reference from a recipe string or
+   * attribute set.
+   */
+  flakeRefAttrsFromMelpaRecipe = recipe:
+    flakeRefAttrsFromMelpaRecipeAttrs (parseMelpaRecipeMaybe recipe);
+
+  /*
+   * Build a URL-like representation of flake reference from a recipe string
+   * or attribute set.
+   */
+  flakeRefUrlFromMelpaRecipe = recipe: flakeRefUrlFromFlakeRefAttrs
+    (flakeRefAttrsFromMelpaRecipeAttrs (parseMelpaRecipeMaybe recipe));
+
+  /*
    * Convert an attribute set of an ELPA package to flake attributes.
    */
   flakeRefAttrsFromElpaAttrs = pkgs.callPackage ./flakeRefAttrsFromElpaAttrs.nix { };
@@ -83,20 +97,6 @@ in
     flakeRefAttrsFromElpaAttrs
     flakeRefUrlFromFlakeRefAttrs
     expandMelpaRecipeFiles;
-
-  /*
-   * Build an attribute set of flake reference from a recipe string or
-   * attribute set.
-   */
-  flakeRefAttrsFromMelpaRecipe = recipe:
-    flakeRefAttrsFromMelpaRecipeAttrs (parseMelpaRecipeMaybe recipe);
-
-  /*
-   * Build a URL-like representation of flake reference from a recipe string
-   * or attribute set.
-   */
-  flakeRefUrlFromMelpaRecipe = recipe: flakeRefUrlFromFlakeRefAttrs
-    (flakeRefAttrsFromMelpaRecipeAttrs (parseMelpaRecipeMaybe recipe));
 
   /*
    * Deprecated functions
