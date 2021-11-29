@@ -34,7 +34,11 @@ let
     # especially if a user spec is merged with the defaults. It may not be a
     # practical issue.
     if isList entry && head entry == ":exclude"
-    then lib.subtractLists (expandPackageFiles_ prefix dir (tail entry)) acc
+    then
+      filter
+        (file: all (pattern: match (globToRegex pattern) file == null)
+          (tail entry))
+        acc
     else if isString entry
     then
       acc ++ globDir prefix dir entry
