@@ -33,10 +33,7 @@
           };
           checks = ({
             pre-commit-check = pre-commit-hooks.lib.${system}.run {
-              src = builtins.path {
-                path = ./.;
-                name = "nix-elisp-helpers";
-              };
+              src = ./.;
               hooks = {
                 nixpkgs-fmt.enable = true;
                 nix-linter.enable = true;
