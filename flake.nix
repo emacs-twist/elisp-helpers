@@ -27,7 +27,10 @@
           fromElisp = (import inputs.fromElisp) { inherit pkgs; };
         in
         {
-          lib = import ./lib { inherit pkgs fromElisp; };
+          lib = import ./lib {
+            inherit fromElisp;
+            inherit (pkgs) lib;
+          };
           checks = ({
             pre-commit-check = pre-commit-hooks.lib.${system}.run {
               src = builtins.path {

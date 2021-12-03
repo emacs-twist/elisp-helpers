@@ -8,5 +8,6 @@ let
   fromElisp = import (fromElispSrc + "/default.nix") { inherit pkgs; };
 in
 import ./lib {
-  inherit pkgs fromElisp;
+  inherit (pkgs) lib;
+  inherit fromElisp;
 }
