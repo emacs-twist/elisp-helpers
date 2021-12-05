@@ -1,4 +1,4 @@
-{ lib, defaultFilesSpec }:
+{ lib }: { defaultFilesSpec }:
 with builtins;
 with import ./utils.nix { inherit lib; };
 let

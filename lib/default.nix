@@ -3,9 +3,13 @@
 }:
 with builtins;
 let
-  callLibs = lib.callPackageWith {
-    inherit lib fromElisp;
-  };
+  callLibs = f:
+    let
+      func = if isPath f then import f else f;
+    in
+    func (intersectAttrs (lib.functionArgs func) {
+      inherit lib fromElisp;
+    });
 in
 lib.makeExtensible (self: {
   defaultFilesSpec = import ./defaultFilesSpec.nix;
@@ -13,17 +17,17 @@ lib.makeExtensible (self: {
   /* Parse a Cask file.
     See https://cask.readthedocs.io/en/self/guide/dsl.html
     */
-  parseCask = callLibs ./parseCask.nix { };
+  parseCask = callLibs ./parseCask.nix;
 
   /** Parse a package list used by GNU ELPA and NonGNU ELPA.
 
     See https://git.savannah.gnu.org/cgit/emacs/elpa.git/tree/elpa-packages for example.
     */
-  parseElpaPackages = callLibs ./parseElpaPackages.nix { };
+  parseElpaPackages = callLibs ./parseElpaPackages.nix;
 
   /* Parse a MELPA-style recipe and return an attribute set.
     */
-  parseMelpaRecipe = callLibs ./parseMelpaRecipe.nix { };
+  parseMelpaRecipe = callLibs ./parseMelpaRecipe.nix;
 
   /* If recipe is a string, parse it.
     */
@@ -37,7 +41,7 @@ lib.makeExtensible (self: {
   /* Convert a set of MELPA-style package attributes to flake attributes
     which suits builtins.fetchTree.
    */
-  flakeRefAttrsFromMelpaRecipeAttrs = callLibs ./flakeRefAttrsFromMelpaRecipeAttrs.nix { };
+  flakeRefAttrsFromMelpaRecipeAttrs = callLibs ./flakeRefAttrsFromMelpaRecipeAttrs.nix;
 
   /* Build an attribute set of flake reference from a recipe string or
     attribute set.
@@ -54,7 +58,7 @@ lib.makeExtensible (self: {
 
   /* Convert an attribute set of an ELPA package to flake attributes.
     */
-  flakeRefAttrsFromElpaAttrs = callLibs ./flakeRefAttrsFromElpaAttrs.nix { };
+  flakeRefAttrsFromElpaAttrs = callLibs ./flakeRefAttrsFromElpaAttrs.nix;
 
   /* Convert an attribute set of flake reference to a URL-like
     representation string.
