@@ -205,6 +205,33 @@ Each value in the attribute set (which should be originally a plist) is converte
 The first argument is an attribute set which can consist of the following options:
 
 - If =preferReleaseBranch= is true, =:release-branch= is chosen as the branch if there is one.
+*** Package descriptions
+**** Parsing a package description
+=parsePkg= parses the content of a =*-pkg.el= file.
+
+#+begin_src nix
+  let
+    description = parsePkg ''
+      (define-package "my-package" "0.5"
+        "My first package"
+        '((emacs "26.2")
+          (dash "2.18")))
+    '';
+  in
+  ..
+#+end_src
+
+#+begin_src nix
+  {
+    ename = "my-package";
+    version = "0.5";
+    sumary = "My first package";
+    packageRequires = {
+      emacs = "26.2";
+      dash = "2.18";
+    };
+  }
+#+end_src
 *** Other utility functions
 **** Converting a flake reference to another representation
 =flakeRefUrlFromFlakeRefAttrs= converts an attribute set to its equivalent URL-style representation.
