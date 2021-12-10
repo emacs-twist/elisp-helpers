@@ -13,7 +13,20 @@
   };
 
   outputs = { self, nixpkgs, flake-utils, pre-commit-hooks, ... }@inputs:
-    flake-utils.lib.eachSystem
+    (
+      let
+        lib = nixpkgs.lib;
+        fromElisp = (import inputs.fromElisp) { pkgs = { inherit lib; }; };
+      in
+      {
+        lib = import ./lib {
+          inherit fromElisp;
+          inherit (nixpkgs) lib;
+        };
+      }
+    )
+    //
+    (flake-utils.lib.eachSystem
       [
         "x86_64-linux"
         "x86_64-darwin"
@@ -24,13 +37,8 @@
         system:
         let
           pkgs = nixpkgs.legacyPackages.${system};
-          fromElisp = (import inputs.fromElisp) { inherit pkgs; };
         in
         {
-          lib = import ./lib {
-            inherit fromElisp;
-            inherit (pkgs) lib;
-          };
           checks = ({
             pre-commit-check = pre-commit-hooks.lib.${system}.run {
               src = ./.;
@@ -47,5 +55,5 @@
             inherit (self.checks.${system}.pre-commit-check) shellHook;
           };
         }
-      );
+      ));
 }
