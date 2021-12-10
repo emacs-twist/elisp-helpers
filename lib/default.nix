@@ -14,6 +14,8 @@ in
 lib.makeExtensible (self: {
   defaultFilesSpec = import ./defaultFilesSpec.nix;
 
+  parsePkg = callLibs ./parsePkg.nix;
+
   /* Parse a Cask file.
     See https://cask.readthedocs.io/en/self/guide/dsl.html
     */
