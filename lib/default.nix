@@ -82,21 +82,21 @@ lib.makeExtensible (self: {
 
   # Deprecated functions
   fetchFromRecipe = str:
-    trace "fetchFromRecipe is deprecated. Use fetchTreeFromMelpaRecipe instead"
+    lib.warn "fetchFromRecipe is deprecated. Use fetchTreeFromMelpaRecipe instead"
       (self.fetchTreeFromMelpaRecipe str);
   parseRecipe = str:
-    trace "parseRecipe is deprecated. Use parseMelpaRecipe instead"
+    lib.warn "parseRecipe is deprecated. Use parseMelpaRecipe instead"
       (self.parseMelpaRecipe str);
   fetchTreeFromRecipe = x:
-    trace "fetchTreeFromRecipe is deprecated. Use fetchTreeFromMelpaRecipe instead"
+    lib.warn "fetchTreeFromRecipe is deprecated. Use fetchTreeFromMelpaRecipe instead"
       (self.fetchTreeFromMelpaRecipe x);
   flakeRefAttrsFromRecipe = x:
-    trace "flakeRefAttrsFromRecipe is deprecated. Use flakeRefAttrsFromMelpaRecipe instead"
+    lib.warn "flakeRefAttrsFromRecipe is deprecated. Use flakeRefAttrsFromMelpaRecipe instead"
       (self.flakeRefAttrsFromMelpaRecipe x);
   flakeRefUrlFromRecipe = x:
-    trace "flakeRefUrlFromRecipe is deprecated. Use flakeRefUrlFromMelpaRecipe instead"
+    lib.warn "flakeRefUrlFromRecipe is deprecated. Use flakeRefUrlFromMelpaRecipe instead"
       (self.flakeRefUrlFromMelpaRecipe x);
   expandPackageFiles = x: y: z:
-    trace "expandPackageFiles is deprecated. Use expandMelpaRecipeFiles instead"
+    lib.warn "expandPackageFiles is deprecated. Use expandMelpaRecipeFiles instead"
       (self.expandMelpaRecipeFiles x y z);
 })
