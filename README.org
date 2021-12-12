@@ -232,6 +232,8 @@ The first argument is an attribute set which can consist of the following option
     };
   }
 #+end_src
+
+Note the attribute names follow the conventions used by =parseMelpaRecipe= if applicable.
 *** Other utility functions
 **** Converting a flake reference to another representation
 =flakeRefUrlFromFlakeRefAttrs= converts an attribute set to its equivalent URL-style representation.
