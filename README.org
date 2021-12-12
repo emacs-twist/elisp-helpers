@@ -225,7 +225,7 @@ The first argument is an attribute set which can consist of the following option
   {
     ename = "my-package";
     version = "0.5";
-    sumary = "My first package";
+    summary = "My first package";
     packageRequires = {
       emacs = "26.2";
       dash = "2.18";
