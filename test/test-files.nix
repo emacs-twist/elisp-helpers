@@ -4,6 +4,10 @@ in
 with (import ../default.nix { inherit pkgs; });
 with builtins;
 let
+  lock = fromJSON (readFile ../flake.lock);
+  fromElispSrc = fetchTree lock.nodes.fromElisp.locked;
+  fromElisp = import (fromElispSrc + "/default.nix") { inherit pkgs; };
+
   defaultFilesSpec = import ../lib/defaultFilesSpec.nix;
 
   recipe3 = parseMelpaRecipe (readFile ./recipe3);
@@ -64,5 +68,19 @@ pkgs.lib.runTests {
       "org-starter-utils.el" = "org-starter-utils.el";
       "org-starter.el" = "org-starter.el";
     };
+  };
+
+  testSlime = {
+    expr = expandMelpaRecipeFiles
+      (fetchTree (fromJSON (readFile ./flake.lock)).nodes.slime.locked)
+      (parseMelpaRecipe (readFile ./recipe8)).files;
+    expected = pkgs.lib.pipe (fromElisp.fromElisp (readFile ./recipe8-result)) [
+      head
+      (map (xs: {
+        name = elemAt xs 0;
+        value = elemAt xs 1;
+      }))
+      listToAttrs
+    ];
   };
 }
