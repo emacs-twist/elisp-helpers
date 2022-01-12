@@ -1,52 +1,87 @@
 { lib }: { defaultFilesSpec }:
 with builtins;
 with import ./utils.nix { inherit lib; };
+root:
 let
   globToRegex = replaceStrings [ "?" "*" "." ] [ "." ".*" "\\." ];
 
-  expandDefaults = initialSpec:
-    if initialSpec == null then
-      defaultFilesSpec
-    else if head initialSpec == ":defaults" then
-      defaultFilesSpec ++ tail initialSpec
-    else
-      initialSpec;
+  pathRegexp = "(.+)/([^/]+)";
 
-  globDir = prefix: dir: pattern:
-    let
-      subdir = dirOf pattern;
-      subdirAsPath = dir + "/${subdir}";
-    in
-    if subdir == "." || prefix == subdir + "/"
-    then
-      lib.pipe (readDir dir) [
-        attrNames
-        (map (file: prefix + file))
-        (filter (file: match (globToRegex pattern) file != null))
-      ]
-    else if ! pathExists subdirAsPath
-    then [ ]
-    else expandPackageFiles_ (prefix + "${subdir}/") subdirAsPath [ pattern ];
+  breakPath = string:
+    if match pathRegexp string == null
+    then [ "" string ]
+    else match pathRegexp string;
 
-  go = prefix: dir: acc: entry:
-    # If :exclude is specified, directories are scanned multiple times. I don't
-    # think it is ideal for performance, but I don't know how to prevent it,
-    # especially if a user spec is merged with the defaults. It may not be a
-    # practical issue.
-    if isList entry && head entry == ":exclude"
-    then
-      filter
-        (file: all (pattern: match (globToRegex pattern) file == null)
-          (tail entry))
-        acc
-    else if isString entry
-    then
-      acc ++ globDir prefix dir entry
-    else
-      acc ++
-      expandPackageFiles_ (prefix + "${head entry}/") (dir + "/${head entry}") (tail entry);
+  readDirIfExists = path:
+    if pathExists path
+    then attrNames (readDir path)
+    else [ ];
 
-  expandPackageFiles_ = prefix: dir: foldl' (go prefix dir) [ ];
+  addDirContents = dir: prev:
+    if hasAttr dir prev
+    then prev
+    else if prev == ""
+    then prev // {
+      "" = readDirIfExists root;
+    }
+    else prev // {
+      ${dir} = readDirIfExists (root + "/${dir}");
+    };
+
+  addTrailing = dir:
+    if dir == ""
+    then dir
+    else dir + "/";
+
+  matchingPattern = pattern: filename:
+    match (globToRegex pattern) filename != null;
+
+  generateFileMappings = prefix: acc: dir: pattern:
+    lib.pipe acc.${dir} [
+      (filter (matchingPattern pattern))
+      (map (filename: {
+        name = (addTrailing dir) + filename;
+        value = (addTrailing prefix)
+          + builtins.replaceStrings [ ".el.in" ] [ ".el" ] filename;
+      }))
+      listToAttrs
+    ];
+
+  addFromPattern = prefix: prev: dirAndPath: rec {
+    directories = addDirContents (elemAt dirAndPath 0) prev.directories;
+    result =
+      prev.result
+      //
+      generateFileMappings prefix directories
+        (elemAt dirAndPath 0)
+        (elemAt dirAndPath 1);
+  };
+
+  go = prefix: acc: entry:
+    if isString entry
+    then addFromPattern prefix acc (breakPath entry)
+    else if isList entry && head entry == ":exclude"
+    then acc // {
+      result = lib.filterAttrs
+        (name: _:
+          ! any (pattern: matchingPattern pattern name) (tail entry)
+        )
+        acc.result;
+    }
+    else if isList entry
+    then foldl' (go (addTrailing prefix + head entry)) acc (tail entry)
+    else throw "Entry has an unsupported type: ${toJSON entry}";
 in
-dir: initialSpec:
-expandPackageFiles_ "" dir (expandDefaults initialSpec)
+initialSpec:
+(foldl'
+  (go "")
+  {
+    directories = { };
+    result = { };
+  }
+  (if initialSpec == null
+  then defaultFilesSpec
+  else if head initialSpec == ":defaults"
+  then defaultFilesSpec ++ tail initialSpec
+  else initialSpec)
+).result

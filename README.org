@@ -134,19 +134,23 @@ Note: Nixpkgs includes an equivalent function in =pkgs/applications/editors/emac
 Note that this function may not completely support all of the reference specs.
 
 **** Expanding the files spec a MELPA recipe
-=expandMelpaRecipeFiles= function expands =:files= spec in a recipe under a given directory:
+=expandMelpaRecipeFiles= function expands =:files= spec in a recipe under a given directory.
+This is equivalent to =package-build-expand-file-specs= function in [[https://github.com/melpa/package-build][package-build]], which is used to build packages on MELPA:
 
 #+begin_src nix
   expandMelpaRecipeFiles ./. ["*.el" [":excludes" ".dir-locals.el" "*-test.el"]]
 #+end_src
 
-It returns a list of matching files relative from the directory:
+The first argument must be a path to a directory, and the second argument can be either a list or =null=. When =null= is given as a spec, the default spec of MELPA is used.
+
+It returns an attribute set of matching files relative from the directory:
 
 #+begin_src nix
-  ["hello.el" "hello-utils.el"]
+  {
+    "hello.el" = "hello.el";
+    "hello-utils.el" = "hello-utils.el";
+  }
 #+end_src
-
-The first argument must be a path to a directory, and the second argument can be either a list or =null=. When =null= is given as a spec, the default spec of MELPA is used.
 
 It can be combined with =parseMelpaRecipe=:
 
@@ -155,9 +159,14 @@ It can be combined with =parseMelpaRecipe=:
     package = parseMelpaRecipe (builtins.readFile ./awesome-package);
     files = expandMelpaRecipeFiles ./. package.files;
   in
-  assert (files == ["awesome-package.el" "awesome-package-utils.el"]);
+  assert (files == {
+    "awesome-package.el" = "awesome-package.el";
+    "awesome-package-utils.el" = "awesome-package-utils.el";
+  });
   ...
 #+end_src
+
+*Note: This function returned a result in the past, but it now returns an attribute set.*
 **** Notes on MELPA recipes
 ***** Supported recipe specs
 :PROPERTIES:

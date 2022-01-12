@@ -1,0 +1,27 @@
+{
+  "nodes": {
+    "root": {
+      "inputs": {
+        "slime": "slime"
+      }
+    },
+    "slime": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1641559709,
+        "narHash": "sha256-ITDu8jGTXJGBHwHcS2y61YEnZjhaodEmBZG7XBy9Mcc=",
+        "owner": "slime",
+        "repo": "slime",
+        "rev": "4af8072274aea7c2995824f12a471623b577f656",
+        "type": "github"
+      },
+      "original": {
+        "owner": "slime",
+        "repo": "slime",
+        "type": "github"
+      }
+    }
+  },
+  "root": "root",
+  "version": 7
+}
