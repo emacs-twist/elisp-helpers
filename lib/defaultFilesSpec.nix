@@ -10,6 +10,10 @@
   "doc/*.info"
   "doc/*.texi"
   "doc/*.texinfo"
+  "docs/dir"
+  "docs/*.info"
+  "docs/*.texi"
+  "docs/*.texinfo"
   [
     ":exclude"
     ".dir-locals.el"
