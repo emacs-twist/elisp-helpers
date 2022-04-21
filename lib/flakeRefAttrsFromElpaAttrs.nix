@@ -1,6 +1,5 @@
-{ lib }: { preferReleaseBranch ? false }: spec @ { url, ... }:
-with builtins;
-let
+{lib}: {preferReleaseBranch ? false}: spec @ {url, ...}:
+with builtins; let
   vcAttrs = lib.filterAttrs (_: v: v != null) {
     ref =
       if preferReleaseBranch
@@ -14,23 +13,26 @@ let
     (filter isString)
   ];
 in
-if url == null
-then throw "url is null"
-else if lib.hasPrefix "https://github.com/" url
-then
-  (vcAttrs // {
-    type = "github";
-    owner = elemAt githubPath 0;
-    repo = elemAt githubPath 1;
-  })
-else if lib.hasPrefix "hg::" url
-then
-  (vcAttrs // {
-    type = "mercurial";
-    url = lib.removePrefix "hg::" url;
-  })
-else
-  (vcAttrs // {
-    type = "git";
-    inherit url;
-  })
+  if url == null
+  then throw "url is null"
+  else if lib.hasPrefix "https://github.com/" url
+  then
+    (vcAttrs
+      // {
+        type = "github";
+        owner = elemAt githubPath 0;
+        repo = elemAt githubPath 1;
+      })
+  else if lib.hasPrefix "hg::" url
+  then
+    (vcAttrs
+      // {
+        type = "mercurial";
+        url = lib.removePrefix "hg::" url;
+      })
+  else
+    (vcAttrs
+      // {
+        type = "git";
+        inherit url;
+      })

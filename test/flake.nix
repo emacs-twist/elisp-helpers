@@ -4,5 +4,5 @@
   inputs.slime.url = "github:slime/slime";
   inputs.slime.flake = false;
 
-  outputs = {}: { };
+  outputs = {}: {};
 }
