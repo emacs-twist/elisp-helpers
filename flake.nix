@@ -12,21 +12,25 @@
     inputs.flake-utils.follows = "flake-utils";
   };
 
-  outputs = { self, nixpkgs, flake-utils, pre-commit-hooks, ... }@inputs:
+  outputs = {
+    self,
+    nixpkgs,
+    flake-utils,
+    pre-commit-hooks,
+    ...
+  } @ inputs:
     (
       let
         lib = nixpkgs.lib;
-        fromElisp = (import inputs.fromElisp) { pkgs = { inherit lib; }; };
-      in
-      {
+        fromElisp = (import inputs.fromElisp) {pkgs = {inherit lib;};};
+      in {
         lib = import ./lib {
           inherit fromElisp;
           inherit (nixpkgs) lib;
         };
       }
     )
-    //
-    (flake-utils.lib.eachSystem
+    // (flake-utils.lib.eachSystem
       [
         "x86_64-linux"
         "x86_64-darwin"
@@ -34,12 +38,10 @@
         "i686-linux"
       ]
       (
-        system:
-        let
+        system: let
           pkgs = nixpkgs.legacyPackages.${system};
-        in
-        {
-          checks = ({
+        in {
+          checks = {
             pre-commit-check = pre-commit-hooks.lib.${system}.run {
               src = ./.;
               hooks = {
@@ -47,7 +49,7 @@
                 nix-linter.enable = true;
               };
             };
-          });
+          };
           devShell = pkgs.mkShell {
             buildInputs = [
               pkgs.gnumake

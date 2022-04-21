@@ -1,14 +1,17 @@
-{ fromElisp, lib }: str:
+{
+  fromElisp,
+  lib,
+}: str:
 with builtins;
-with import ./utils.nix { inherit lib; };
-lib.pipe str [
-  fromElisp.fromElisp
-  head
-  (map (tree: {
-    name = head tree;
-    value =
-      alistToAttrs { emptyListToNull = true; }
+with import ./utils.nix {inherit lib;};
+  lib.pipe str [
+    fromElisp.fromElisp
+    head
+    (map (tree: {
+      name = head tree;
+      value =
+        alistToAttrs {emptyListToNull = true;}
         (plistToAlist (tail tree));
-  }))
-  listToAttrs
-]
+    }))
+    listToAttrs
+  ]

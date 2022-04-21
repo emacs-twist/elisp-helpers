@@ -19,6 +19,7 @@ It uses [[https://github.com/talyz/fromElisp][talyz/fromElisp]] parser to parse 
     - [[#cask][Cask]]
     - [[#melpa-package][MELPA package]]
     - [[#elpa-packages][ELPA packages]]
+    - [[#package-descriptions][Package descriptions]]
     - [[#other-utility-functions][Other utility functions]]
   - [[#credits][Credits]]
 :END:
@@ -241,6 +242,8 @@ The first argument is an attribute set which can consist of the following option
     };
   }
 #+end_src
+
+If the package description has no field for the requirements, the value of =packageRequires= attribute will become null.
 
 Note the attribute names follow the conventions used by =parseMelpaRecipe= if applicable.
 *** Other utility functions

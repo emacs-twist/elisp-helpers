@@ -1,104 +1,117 @@
-{ lib
-, fromElisp
+{
+  lib,
+  fromElisp,
 }:
-with builtins;
-let
-  callLibs = f:
-    let
-      func = if isPath f then import f else f;
-    in
+with builtins; let
+  callLibs = f: let
+    func =
+      if isPath f
+      then import f
+      else f;
+  in
     func (intersectAttrs (lib.functionArgs func) {
       inherit lib fromElisp;
     });
 in
-lib.makeExtensible (self: {
-  defaultFilesSpec = import ./defaultFilesSpec.nix;
+  lib.makeExtensible (self: {
+    defaultFilesSpec = import ./defaultFilesSpec.nix;
 
-  parsePkg = callLibs ./parsePkg.nix;
+    parsePkg = callLibs ./parsePkg.nix;
 
-  /* Parse a Cask file.
-    See https://cask.readthedocs.io/en/self/guide/dsl.html
-    */
-  parseCask = callLibs ./parseCask.nix;
+    /*
+      Parse a Cask file.
+     See https://cask.readthedocs.io/en/self/guide/dsl.html
+     */
+    parseCask = callLibs ./parseCask.nix;
 
-  /** Parse a package list used by GNU ELPA and NonGNU ELPA.
+    /*
+     * Parse a package list used by GNU ELPA and NonGNU ELPA.
+     
+     See https://git.savannah.gnu.org/cgit/emacs/elpa.git/tree/elpa-packages for example.
+     */
+    parseElpaPackages = callLibs ./parseElpaPackages.nix;
 
-    See https://git.savannah.gnu.org/cgit/emacs/elpa.git/tree/elpa-packages for example.
-    */
-  parseElpaPackages = callLibs ./parseElpaPackages.nix;
+    /*
+     Parse a MELPA-style recipe and return an attribute set.
+     */
+    parseMelpaRecipe = callLibs ./parseMelpaRecipe.nix;
 
-  /* Parse a MELPA-style recipe and return an attribute set.
-    */
-  parseMelpaRecipe = callLibs ./parseMelpaRecipe.nix;
+    /*
+     If recipe is a string, parse it.
+     */
+    parseMelpaRecipeMaybe = recipe:
+      if isString recipe
+      then self.parseMelpaRecipe recipe
+      else if isAttrs recipe
+      then recipe
+      else trace recipe (throw "A recipe must be either a string or an attr set");
 
-  /* If recipe is a string, parse it.
-    */
-  parseMelpaRecipeMaybe = recipe:
-    if isString recipe
-    then self.parseMelpaRecipe recipe
-    else if isAttrs recipe
-    then recipe
-    else trace recipe (throw "A recipe must be either a string or an attr set");
+    /*
+      Convert a set of MELPA-style package attributes to flake attributes
+     which suits builtins.fetchTree.
+     */
+    flakeRefAttrsFromMelpaRecipeAttrs = callLibs ./flakeRefAttrsFromMelpaRecipeAttrs.nix;
 
-  /* Convert a set of MELPA-style package attributes to flake attributes
-    which suits builtins.fetchTree.
-   */
-  flakeRefAttrsFromMelpaRecipeAttrs = callLibs ./flakeRefAttrsFromMelpaRecipeAttrs.nix;
+    /*
+      Build an attribute set of flake reference from a recipe string or
+     attribute set.
+     */
+    flakeRefAttrsFromMelpaRecipe = recipe:
+      self.flakeRefAttrsFromMelpaRecipeAttrs (self.parseMelpaRecipeMaybe recipe);
 
-  /* Build an attribute set of flake reference from a recipe string or
-    attribute set.
-   */
-  flakeRefAttrsFromMelpaRecipe = recipe:
-    self.flakeRefAttrsFromMelpaRecipeAttrs (self.parseMelpaRecipeMaybe recipe);
-
-  /* Build a URL-like representation of flake reference from a recipe string
-    or attribute set.
-   */
-  flakeRefUrlFromMelpaRecipe = recipe:
-    self.flakeRefUrlFromFlakeRefAttrs
+    /*
+      Build a URL-like representation of flake reference from a recipe string
+     or attribute set.
+     */
+    flakeRefUrlFromMelpaRecipe = recipe:
+      self.flakeRefUrlFromFlakeRefAttrs
       (self.flakeRefAttrsFromMelpaRecipeAttrs (self.parseMelpaRecipeMaybe recipe));
 
-  /* Convert an attribute set of an ELPA package to flake attributes.
-    */
-  flakeRefAttrsFromElpaAttrs = callLibs ./flakeRefAttrsFromElpaAttrs.nix;
+    /*
+     Convert an attribute set of an ELPA package to flake attributes.
+     */
+    flakeRefAttrsFromElpaAttrs = callLibs ./flakeRefAttrsFromElpaAttrs.nix;
 
-  /* Convert an attribute set of flake reference to a URL-like
-    representation string.
-    */
-  flakeRefUrlFromFlakeRefAttrs = import ./flakeRefUrlFromFlakeRefAttrs.nix;
+    /*
+      Convert an attribute set of flake reference to a URL-like
+     representation string.
+     */
+    flakeRefUrlFromFlakeRefAttrs = import ./flakeRefUrlFromFlakeRefAttrs.nix;
 
-  /* Fetch the source repository of a recipe using builtins.fetchTree
-   */
-  fetchTreeFromMelpaRecipe = recipe:
-    fetchTree (self.flakeRefAttrsFromMelpaRecipeAttrs (self.parseMelpaRecipeMaybe recipe));
+    /*
+     Fetch the source repository of a recipe using builtins.fetchTree
+     */
+    fetchTreeFromMelpaRecipe = recipe:
+      fetchTree (self.flakeRefAttrsFromMelpaRecipeAttrs (self.parseMelpaRecipeMaybe recipe));
 
-  /* Expand :files spec in a MELPA recipe.
-    dir is a path to a directory (usually the root of a project),
-    and initialSpec is a list of specs.
+    /*
+      Expand :files spec in a MELPA recipe.
+     dir is a path to a directory (usually the root of a project),
+     and initialSpec is a list of specs.
+     
+     If null is given as initialSpec, defaultFilesSpec is used.
+     */
+    expandMelpaRecipeFiles = callLibs ./expandMelpaRecipeFiles.nix {
+      inherit (self) defaultFilesSpec;
+    };
 
-    If null is given as initialSpec, defaultFilesSpec is used.
-   */
-  expandMelpaRecipeFiles = callLibs ./expandMelpaRecipeFiles.nix {
-    inherit (self) defaultFilesSpec;
-  };
-
-  # Deprecated functions
-  fetchFromRecipe = str:
-    lib.warn "fetchFromRecipe is deprecated. Use fetchTreeFromMelpaRecipe instead"
+    # Deprecated functions
+    fetchFromRecipe = str:
+      lib.warn "fetchFromRecipe is deprecated. Use fetchTreeFromMelpaRecipe instead"
       (self.fetchTreeFromMelpaRecipe str);
-  parseRecipe = str:
-    lib.warn "parseRecipe is deprecated. Use parseMelpaRecipe instead"
+    parseRecipe = str:
+      lib.warn "parseRecipe is deprecated. Use parseMelpaRecipe instead"
       (self.parseMelpaRecipe str);
-  fetchTreeFromRecipe = x:
-    lib.warn "fetchTreeFromRecipe is deprecated. Use fetchTreeFromMelpaRecipe instead"
+    fetchTreeFromRecipe = x:
+      lib.warn "fetchTreeFromRecipe is deprecated. Use fetchTreeFromMelpaRecipe instead"
       (self.fetchTreeFromMelpaRecipe x);
-  flakeRefAttrsFromRecipe = x:
-    lib.warn "flakeRefAttrsFromRecipe is deprecated. Use flakeRefAttrsFromMelpaRecipe instead"
+    flakeRefAttrsFromRecipe = x:
+      lib.warn "flakeRefAttrsFromRecipe is deprecated. Use flakeRefAttrsFromMelpaRecipe instead"
       (self.flakeRefAttrsFromMelpaRecipe x);
-  flakeRefUrlFromRecipe = x:
-    lib.warn "flakeRefUrlFromRecipe is deprecated. Use flakeRefUrlFromMelpaRecipe instead"
+    flakeRefUrlFromRecipe = x:
+      lib.warn "flakeRefUrlFromRecipe is deprecated. Use flakeRefUrlFromMelpaRecipe instead"
       (self.flakeRefUrlFromMelpaRecipe x);
-  expandPackageFiles = x: y: z:
-    lib.warn "expandPackageFiles is deprecated. Use expandMelpaRecipeFiles instead"
+    expandPackageFiles = x: y: z:
+      lib.warn "expandPackageFiles is deprecated. Use expandMelpaRecipeFiles instead"
       (self.expandMelpaRecipeFiles x y z);
-})
+  })
