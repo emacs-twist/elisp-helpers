@@ -1,7 +1,7 @@
 # Based on package-build-default-files-spec in package-build.el.
 [
   "*.el"
-  "*.el.in"
+  "lisp/*.el"
   "dir"
   "*.info"
   "*.texi"
@@ -21,5 +21,9 @@
     "tests.el"
     "*-test.el"
     "*-tests.el"
+    "lisp/test.el"
+    "lisp/tests.el"
+    "lisp/*-test.el"
+    "lisp/*-tests.el"
   ]
 ]
