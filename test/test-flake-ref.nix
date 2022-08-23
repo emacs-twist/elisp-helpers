@@ -33,4 +33,14 @@ in
         expr = flakeRefUrlFromMelpaRecipe (readFile ./gitlab-recipe);
         expected = "git+https://gitlab.com/joewreschnig/gitlab-ci-mode.git";
       };
+
+      testSourcehut = {
+        expr = flakeRefUrlFromMelpaRecipe (readFile ./data/recipes/sourcehut);
+        expected = "sourcehut:~tomterl/fullframe";
+      };
+
+      testCodeberg = {
+        expr = flakeRefUrlFromMelpaRecipe (readFile ./data/recipes/codeberg);
+        expected = "git+https://codeberg.org/emacs-weirdware/scratch.git";
+      };
     }
