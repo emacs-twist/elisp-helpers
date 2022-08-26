@@ -31,6 +31,8 @@ with builtins; let
 in
   if type == "github"
   then "github:${attrs.owner}/${attrs.repo}" + branchSuffix + query
+  else if type == "sourcehut"
+  then "sourcehut:${attrs.owner}/${attrs.repo}" + branchSuffix + query
   else if type == "git"
   then toGitUrl url + query
   else if type == "mercurial"
