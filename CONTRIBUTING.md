@@ -27,7 +27,7 @@ If it prints a formatting error, you can fix it by trying to run `git commit`.
 Also run:
 
 ```sh
-nix-build test/impure-checks.nix
+make test
 ```
 
 All of the commands should exit with 0.
