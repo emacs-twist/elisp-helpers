@@ -31,7 +31,7 @@ in
 
       testGitlab = {
         expr = flakeRefUrlFromMelpaRecipe (readFile ./gitlab-recipe);
-        expected = "git+https://gitlab.com/joewreschnig/gitlab-ci-mode.git";
+        expected = "gitlab:joewreschnig/gitlab-ci-mode";
       };
 
       testSourcehut = {
