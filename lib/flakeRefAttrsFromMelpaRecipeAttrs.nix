@@ -23,6 +23,15 @@ with builtins; let
       inherit owner repo;
     });
 
+  buildGitlabAttrs = {
+    owner,
+    repo,
+  }: (vcAttrs
+    // {
+      type = "gitlab";
+      inherit owner repo;
+    });
+
   buildSourceHutAttrs = {
     owner,
     repo,
@@ -51,6 +60,13 @@ in
       owner = elemAt repoPath 0;
       repo = elemAt repoPath 2;
     }
+  else if fetcher == "gitlab"
+  then
+    buildGitlabAttrs
+    {
+      owner = elemAt repoPath 0;
+      repo = elemAt repoPath 2;
+    }
   else if fetcher == "sourcehut"
   then
     buildSourceHutAttrs
@@ -63,12 +79,6 @@ in
     buildGitAttrs
     {
       url = "https://codeberg.org/${package.repo}.git";
-    }
-  else if fetcher == "gitlab"
-  then
-    buildGitAttrs
-    {
-      url = "https://gitlab.com/${package.repo}.git";
     }
   else if fetcher == "git"
   then

@@ -8,6 +8,7 @@ in
     recipe3 = parseMelpaRecipe (readFile ./recipe3);
     recipe4 = parseMelpaRecipe (readFile ./recipe4);
     recipe5 = parseMelpaRecipe (readFile ./recipe5);
+    recipeGitlab = parseMelpaRecipe (readFile ./gitlab-recipe);
 
     excludeNulls = pkgs.lib.filterAttrs (_: val: val != null);
   in
@@ -71,6 +72,16 @@ in
           pname = "discover-my-major";
           fetcher = "git";
           url = "https://framagit.org/steckerhalter/discover-my-major.git";
+        };
+      };
+
+      testGitlabRecipe = {
+        expr = excludeNulls recipeGitlab;
+        expected = {
+          ename = "gitlab-ci-mode";
+          pname = "gitlab-ci-mode";
+          fetcher = "gitlab";
+          repo = "joewreschnig/gitlab-ci-mode";
         };
       };
     }
