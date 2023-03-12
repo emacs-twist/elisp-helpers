@@ -2,18 +2,21 @@
   lib,
   fromElisp,
 }:
-with builtins; let
-  callLibs = f: let
-    func =
-      if isPath f
-      then import f
-      else f;
-  in
-    func (intersectAttrs (lib.functionArgs func) {
-      inherit lib fromElisp;
-    });
-in
-  lib.makeExtensible (self: {
+with builtins;
+  lib.makeExtensible (self: let
+    callLibs = f: let
+      func =
+        if isPath f
+        then import f
+        else f;
+    in
+      func (intersectAttrs (lib.functionArgs func) {
+        inherit lib;
+        inherit (self) fromElisp;
+      });
+  in {
+    inherit fromElisp;
+
     defaultFilesSpec = import ./defaultFilesSpec.nix;
 
     parsePkg = callLibs ./parsePkg.nix;
