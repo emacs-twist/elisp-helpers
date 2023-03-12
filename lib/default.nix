@@ -2,18 +2,21 @@
   lib,
   fromElisp,
 }:
-with builtins; let
-  callLibs = f: let
-    func =
-      if isPath f
-      then import f
-      else f;
-  in
-    func (intersectAttrs (lib.functionArgs func) {
-      inherit lib fromElisp;
-    });
-in
-  lib.makeExtensible (self: {
+with builtins;
+  lib.makeExtensible (self: let
+    callLibs = f: let
+      func =
+        if isPath f
+        then import f
+        else f;
+    in
+      func (intersectAttrs (lib.functionArgs func) {
+        inherit lib;
+        inherit (self) fromElisp;
+      });
+  in {
+    inherit fromElisp;
+
     defaultFilesSpec = import ./defaultFilesSpec.nix;
 
     parsePkg = callLibs ./parsePkg.nix;
@@ -60,7 +63,7 @@ in
       self.flakeRefAttrsFromMelpaRecipeAttrs (self.parseMelpaRecipeMaybe recipe);
 
     /*
-      Build a URL-like representation of flake reference from a recipe string
+     Build a URL-like representation of flake reference from a recipe string
      or attribute set.
      */
     flakeRefUrlFromMelpaRecipe = recipe:
@@ -73,7 +76,7 @@ in
     flakeRefAttrsFromElpaAttrs = callLibs ./flakeRefAttrsFromElpaAttrs.nix;
 
     /*
-      Convert an attribute set of flake reference to a URL-like
+     Convert an attribute set of flake reference to a URL-like
      representation string.
      */
     flakeRefUrlFromFlakeRefAttrs = import ./flakeRefUrlFromFlakeRefAttrs.nix;
@@ -85,7 +88,7 @@ in
       fetchTree (self.flakeRefAttrsFromMelpaRecipeAttrs (self.parseMelpaRecipeMaybe recipe));
 
     /*
-      Expand :files spec in a MELPA recipe.
+     Expand :files spec in a MELPA recipe.
      dir is a path to a directory (usually the root of a project),
      and initialSpec is a list of specs.
      
