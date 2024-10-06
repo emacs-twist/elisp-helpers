@@ -9,15 +9,20 @@
   };
 
   outputs =
-    { nixpkgs, ... }@inputs:
+    { ... }@inputs:
     {
-      lib = import ./lib {
-        fromElisp = (import inputs.fromElisp) {
-          pkgs = {
-            inherit (nixpkgs) lib;
+      lib = {
+        makeLib =
+          { lib }:
+          import ./lib {
+            fromElisp = (import inputs.fromElisp) {
+              pkgs = {
+                inherit lib;
+              };
+            };
+            inherit lib;
           };
-        };
-        inherit (nixpkgs) lib;
+
       };
     };
 }
