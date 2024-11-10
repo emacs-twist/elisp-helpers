@@ -8,7 +8,7 @@ on:
       - '*.org'
 
 jobs:
-  check:
+  test:
     strategy:
       matrix:
         os:
