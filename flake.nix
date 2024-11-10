@@ -9,7 +9,7 @@
   };
 
   outputs =
-    { ... }@inputs:
+    inputs:
     {
       lib = {
         makeLib =
